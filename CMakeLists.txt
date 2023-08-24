@@ -7,6 +7,7 @@ project(
   VERSION 0.1.0
   LANGUAGES CXX
 )
+add_compile_definitions(HARU_PRG_NAME="${PROJECT_NAME}")
 add_compile_definitions(HARU_VERSION="${PROJECT_VERSION}")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -28,8 +29,8 @@ fetchcontent_makeavailable(fmt)
 set(SPDLOG_FMT_EXTERNAL TRUE)
 fetchcontent_declare(
   spdlog
-  GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.12.0
+  GIT_REPOSITORY https://github.com/kareigu/spdlog.git
+  GIT_TAG easier_dual_sink
   GIT_PROGRESS TRUE
   USES_TERMINAL_DOWNLOAD TRUE
 )
@@ -44,7 +45,17 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(Result)
 
-set(PROJECT_SOURCES src/main.cpp)
+set(ARGPARSE_INSTALL FALSE)
+fetchcontent_declare(
+  argparse
+  GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+  GIT_TAG master
+  GIT_PROGRESS TRUE
+  USES_TERMINAL_DOWNLOAD TRUE
+)
+fetchcontent_makeavailable(argparse)
+
+set(PROJECT_SOURCES src/main.cpp src/log_formatter.cpp)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_link_libraries(
@@ -52,6 +63,7 @@ target_link_libraries(
   fmt
   spdlog
   Result
+  argparse
 )
 
 if(NINJA_MULTICONFIG)
@@ -63,7 +75,7 @@ endif()
 add_custom_target(
   run
   COMMAND ${CMAKE_COMMAND} -E env ${OUTPUT_FILE_PATH}
-  USES_TERMINAL
+  USES_TERMINAL VERBATIM
   DEPENDS ${PROJECT_NAME}
 )
 
