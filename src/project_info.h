@@ -1,5 +1,6 @@
 #pragma once
-#include "fmt/core.h"
+#include "common.h"
+#include <fmt/core.h>
 #include <optional>
 #include <result.hpp>
 #include <string>
@@ -24,14 +25,11 @@ struct ProjectInfo {
   std::string standard;
   std::vector<Dependency> dependendencies;
 
-  struct Error {
-    enum class Type : uint8_t {
-      Unknown,
-    };
-    using Type::Unknown;
-    Type type;
-    std::optional<std::string> message;
+  enum class ErrorType : uint8_t {
+    Unknown,
   };
+  using ErrorType::Unknown;
+  using Error = Error<ErrorType>;
 
   static cpp::result<ProjectInfo, Error> parse_from_input();
 
@@ -42,13 +40,13 @@ private:
 
 
 template<>
-struct fmt::formatter<haru::ProjectInfo::Error::Type> {
+struct fmt::formatter<haru::ProjectInfo::ErrorType> {
   constexpr format_parse_context::iterator parse(format_parse_context& ctx) {
     return ctx.begin(), ctx.end();
   }
 
-  format_context::iterator format(haru::ProjectInfo::Error::Type error_type, format_context& ctx) const {
-    using Type = haru::ProjectInfo::Error::Type;
+  format_context::iterator format(haru::ProjectInfo::ErrorType error_type, format_context& ctx) const {
+    using Type = haru::ProjectInfo::ErrorType;
     switch (error_type) {
       case Type::Unknown:
         return format_to(ctx.out(), "UnknownError");
