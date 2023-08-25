@@ -55,7 +55,7 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(argparse)
 
-set(PROJECT_SOURCES src/main.cpp src/log_formatter.cpp)
+set(PROJECT_SOURCES src/main.cpp src/log_formatter.cpp src/project_info.cpp)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_link_libraries(

@@ -1,5 +1,6 @@
 #include "common.h"
 #include "log_formatter.h"
+#include "project_info.h"
 #include <argparse/argparse.hpp>
 #include <cstdlib>
 #include <fmt/core.h>
@@ -21,6 +22,15 @@ int main(int argc, char** argv) {
   argparse::ArgumentParser arg_parser(HARU_PRG_NAME, HARU_VERSION);
   arg_parser.add_description("C++ cmake project generator");
 
+  argparse::ArgumentParser create_command("create");
+  create_command.add_description("Create a project in a new directory");
+
+  argparse::ArgumentParser init_command("init");
+  init_command.add_description("Initialise a project in the current directory");
+
+  arg_parser.add_subparser(create_command);
+  arg_parser.add_subparser(init_command);
+
   if (argc <= 1) {
     spdlog::info("{:s}", arg_parser.help().str());
     return EXIT_FAILURE;
@@ -33,6 +43,15 @@ int main(int argc, char** argv) {
     spdlog::info("{:s}", arg_parser.usage());
     return EXIT_FAILURE;
   }
+
+  if (arg_parser.is_subcommand_used(create_command)) {
+    auto project_info_ret = haru::ProjectInfo::parse_from_input();
+    if (project_info_ret.has_error()) {
+      spdlog::error("Couldn't parse project info: {}", project_info_ret.error());
+      return EXIT_FAILURE;
+    }
+  }
+
 
   return EXIT_SUCCESS;
 }
