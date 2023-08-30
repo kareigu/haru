@@ -1,9 +1,8 @@
 #include "project_info.h"
 
 namespace haru {
-cpp::result<ProjectInfo, ProjectInfo::Error> ProjectInfo::parse_from_input() {
-  using Error = ProjectInfo::Error;
-  return cpp::fail(Error(Unknown));
+cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input() {
+  return cpp::fail(Error(Error::Unknown));
 }
 
 }// namespace haru

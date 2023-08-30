@@ -47,15 +47,21 @@ fetchcontent_makeavailable(Result)
 
 set(ARGPARSE_INSTALL FALSE)
 fetchcontent_declare(
-  argparse
-  GIT_REPOSITORY https://github.com/p-ranav/argparse.git
-  GIT_TAG master
+  args
+  GIT_REPOSITORY https://github.com/Taywee/args.git
+  GIT_TAG 6.4.6
   GIT_PROGRESS TRUE
   USES_TERMINAL_DOWNLOAD TRUE
 )
-fetchcontent_makeavailable(argparse)
+fetchcontent_makeavailable(args)
 
-set(PROJECT_SOURCES src/main.cpp src/log_formatter.cpp src/project_info.cpp)
+set(PROJECT_SOURCES
+    src/main.cpp
+    src/log_formatter.cpp
+    src/project_info.cpp
+    src/args_parser.cpp
+    src/error.cpp
+)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 target_link_libraries(
@@ -63,7 +69,7 @@ target_link_libraries(
   fmt
   spdlog
   Result
-  argparse
+  args
 )
 
 if(NINJA_MULTICONFIG)
