@@ -1,8 +1,6 @@
 #pragma once
-#include "common.h"
 #include "error.h"
 #include <fmt/core.h>
-#include <optional>
 #include <result.hpp>
 #include <string>
 #include <vector>

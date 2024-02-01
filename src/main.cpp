@@ -1,14 +1,11 @@
 #include "args_parser.h"
-#include "common.h"
 #include "log_formatter.h"
 #include "project_info.h"
 #include <cstdlib>
 #include <fmt/core.h>
-#include <iostream>
 #include <memory>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
-#include <stdexcept>
 
 
 int main(int argc, char** argv) {

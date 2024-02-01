@@ -1,7 +1,6 @@
 #include "args_parser.h"
 #include "args.hxx"
 #include <spdlog/spdlog.h>
-#include <stdexcept>
 
 
 namespace haru {
