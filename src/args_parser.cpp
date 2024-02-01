@@ -1,10 +1,11 @@
 #include "args_parser.h"
 #include "args.hxx"
+#include "common.h"
 #include <spdlog/spdlog.h>
 
 
 namespace haru {
-constexpr const char* EPILOG = HARU_PRG_NAME " v" HARU_VERSION;
+constexpr const char* EPILOG = HARU_PRG_NAME " v" HARU_VERSION " - " RELEASE_TYPE;
 args::ArgumentParser ArgsParser::s_parser = args::ArgumentParser("C++ cmake project generator", EPILOG);
 args::Group ArgsParser::s_commands_group = args::Group(s_parser, "COMMANDS");
 
