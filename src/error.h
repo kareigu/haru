@@ -7,17 +7,19 @@
 
 namespace haru {
 class Error {
+public:
   using TypeAsInt = uint8_t;
   const static auto TypeMaxValue = std::numeric_limits<TypeAsInt>::max();
 
-public:
   enum class Type : TypeAsInt {
+    NoInput,
     Unknown = TypeMaxValue,
   };
+  using Type::NoInput;
   using Type::Unknown;
 
   Error(Type type) : m_type(type) {}
-  Error(Type type, const char* message) : m_type(type), m_message(message) {}
+  Error(Type type, std::string message) : m_type(type), m_message(message) {}
   Error() = default;
   ~Error() = default;
 

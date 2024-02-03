@@ -1,4 +1,5 @@
 #pragma once
+#include "command.h"
 #include "error.h"
 #include <args.hxx>
 #include <result.hpp>
@@ -9,10 +10,6 @@ public:
   ArgsParser() = delete;
   ~ArgsParser() = default;
 
-  enum class Command : uint8_t {
-    Create,
-    Init,
-  };
 
   static cpp::result<Command, Error> parse(int argc, char** argv);
 
