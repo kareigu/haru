@@ -10,7 +10,7 @@ project(
 add_compile_definitions(HARU_PRG_NAME="${PROJECT_NAME}")
 add_compile_definitions(HARU_VERSION="${PROJECT_VERSION}")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 set(NINJA_MULTICONFIG (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config"))
