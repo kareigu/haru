@@ -13,8 +13,10 @@ public:
 
   enum class Type : TypeAsInt {
     NoInput,
+    InputError,
     Unknown = TypeMaxValue,
   };
+  using Type::InputError;
   using Type::NoInput;
   using Type::Unknown;
 
