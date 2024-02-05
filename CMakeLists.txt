@@ -62,6 +62,7 @@ set(PROJECT_SOURCES
     src/args_parser.cpp
     src/error.cpp
     src/command.cpp
+    src/utils.cpp
 )
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})

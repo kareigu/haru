@@ -37,4 +37,6 @@ cpp::result<T, Error> prompt(const char* text, std::optional<T> default_value = 
   return value;
 }
 
+cpp::result<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line = false);
+
 }// namespace haru
