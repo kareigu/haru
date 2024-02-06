@@ -3,6 +3,7 @@
 #include <fmt/core.h>
 #include <optional>
 #include <result.hpp>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -13,6 +14,7 @@ struct Dependency {
     GIT,
     LOCAL,
   };
+  std::string name;
   std::string location;
   std::string version;
   Source source;
@@ -42,11 +44,12 @@ struct fmt::formatter<haru::Dependency> {
 
   auto format(haru::Dependency dependency, format_context& ctx) const {
     const char* source = dependency.source == haru::Dependency::Source::GIT ? "git" : "local";
-    std::string output = "";
-    output += fmt::format("source = {:s}\n", source);
-    output += fmt::format("location = \"{:s}\"\n", dependency.location);
-    output += fmt::format("version = {:s}\n", dependency.version);
-    return fmt::format_to(ctx.out(), "{{\n {:s}\n}}", output);
+    fmt::format_to(ctx.out(), "{{\n");
+    fmt::format_to(ctx.out(), " name = {:s}\n", dependency.name);
+    fmt::format_to(ctx.out(), " location = \"{:s}\"\n", dependency.location);
+    fmt::format_to(ctx.out(), " version = {:s}\n", dependency.version);
+    fmt::format_to(ctx.out(), " source = {:s}\n", source);
+    return fmt::format_to(ctx.out(), "}}");
   }
 };
 
