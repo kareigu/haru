@@ -68,7 +68,7 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
       case Dependency::Source::GIT: {
         std::string name = TRY(prompt<std::string>("name"));
         dependency.name = name;
-        std::string location = TRY(prompt<std::string>("URL"));
+        std::string location = TRY(prompt<std::string>("url"));
         dependency.location = location;
         std::string version = TRY(prompt<std::string>("version or tag", "master"));
         dependency.version = version;
@@ -79,7 +79,7 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
         dependency.name = name;
         std::string location = TRY(prompt<std::string>("path"));
         dependency.location = location;
-        dependency.version = "LOCAL";
+        dependency.version = "local";
         break;
       }
     }

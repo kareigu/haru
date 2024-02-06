@@ -46,7 +46,8 @@ struct fmt::formatter<haru::Dependency> {
     const char* source = dependency.source == haru::Dependency::Source::GIT ? "git" : "local";
     fmt::format_to(ctx.out(), "{{\n");
     fmt::format_to(ctx.out(), " name = {:s}\n", dependency.name);
-    fmt::format_to(ctx.out(), " location = \"{:s}\"\n", dependency.location);
+    const char* location_name = dependency.source == haru::Dependency::Source::GIT ? "url" : "path";
+    fmt::format_to(ctx.out(), " {:s} = \"{:s}\"\n", location_name, dependency.location);
     fmt::format_to(ctx.out(), " version = {:s}\n", dependency.version);
     fmt::format_to(ctx.out(), " source = {:s}\n", source);
     return fmt::format_to(ctx.out(), "}}");
