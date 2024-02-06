@@ -58,20 +58,25 @@ struct fmt::formatter<haru::ProjectInfo> {
   }
 
   auto format(haru::ProjectInfo info, format_context& ctx) const {
-    std::string dependencies = "";
-    for (const auto& dependency : info.dependencies) {
-      dependencies += fmt::format(" {}\n", dependency);
+    std::stringstream dependencies;
+    if (info.dependencies.size() > 0) {
+      dependencies << "[\n";
+      for (const auto& dependency : info.dependencies) {
+        std::stringstream ss(fmt::format("{}", dependency));
+        std::string line;
+        while (std::getline(ss, line, '\n')) {
+          dependencies << fmt::format("  {}\n", line);
+        }
+      }
+      dependencies << "]";
     }
-    if (info.dependencies.size() > 0)
-      dependencies = fmt::format("[\n{}\n]", dependencies);
 
-    std::string output = "";
-    output += fmt::format("cmake_version = \"{:s}\"\n", info.cmake_version);
-    output += fmt::format("name = \"{:s}\"\n", info.name);
-    output += fmt::format("version = {:s}\n", info.version);
-    output += fmt::format("C++-standard = {:s}\n", info.standard);
+    fmt::format_to(ctx.out(), "cmake_version = \"{:s}\"\n", info.cmake_version);
+    fmt::format_to(ctx.out(), "name = \"{:s}\"\n", info.name);
+    fmt::format_to(ctx.out(), "version = {:s}\n", info.version);
+    fmt::format_to(ctx.out(), "C++-standard = {:s}\n", info.standard);
     if (info.dependencies.size() > 0)
-      output += fmt::format("dependencies = {:s}\n", dependencies);
-    return fmt::format_to(ctx.out(), "{:s}", output);
+      fmt::format_to(ctx.out(), "dependencies = {:s}\n", dependencies.str());
+    return ctx.out();
   }
 };
