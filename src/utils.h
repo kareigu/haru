@@ -8,6 +8,13 @@
 #include <sstream>
 #include <string>
 
+#define TRY(EXPR) ({                     \
+  auto&& _temp_ret = (EXPR);             \
+  if (_temp_ret.has_error())             \
+    return cpp::fail(_temp_ret.error()); \
+  _temp_ret.value();                     \
+})
+
 namespace haru {
 
 /**

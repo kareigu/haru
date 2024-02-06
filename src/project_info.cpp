@@ -8,34 +8,21 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info);
 
 cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(std::optional<std::string> default_name) {
   ProjectInfo project_info;
-  auto project_name_ret = prompt<std::string>("Project name", default_name);
-  if (project_name_ret.has_error())
-    return cpp::fail(project_name_ret.error());
-  project_info.name = project_name_ret.value();
+  std::string project_name = TRY(prompt<std::string>("Project name", default_name));
+  project_info.name = project_name;
 
-  auto cmake_version_ret = prompt<std::string>("Minimum cmake version", DEFAULT_CMAKE_VERSION);
-  if (cmake_version_ret.has_error())
-    return cpp::fail(cmake_version_ret.error());
-  project_info.cmake_version = cmake_version_ret.value();
+  std::string cmake_version = TRY(prompt<std::string>("Minimum cmake version", DEFAULT_CMAKE_VERSION));
+  project_info.cmake_version = cmake_version;
 
-  auto version_ret = prompt<std::string>("version", DEFAULT_VERSION);
-  if (version_ret.has_error())
-    return cpp::fail(version_ret.error());
-  project_info.version = version_ret.value();
+  std::string version = TRY(prompt<std::string>("version", DEFAULT_VERSION));
+  project_info.version = version;
 
-  auto standard_ret = prompt<std::string>("C++-standard", DEFAULT_STD_VERSION);
-  if (standard_ret.has_error())
-    return cpp::fail(standard_ret.error());
-  project_info.standard = standard_ret.value();
+  std::string standard = TRY(prompt<std::string>("C++-standard", DEFAULT_STD_VERSION));
+  project_info.standard = standard;
 
-  auto add_dependencies_ret = prompt_yes_no("Add dependencies?", DEFAULT_ADD_DEPENDENCIES);
-  if (add_dependencies_ret.has_error())
-    return cpp::fail(add_dependencies_ret.error());
-
-  if (add_dependencies_ret.value()) {
-    auto added_dependencies_ret = handle_adding_dependencies(project_info);
-    if (added_dependencies_ret.has_error())
-      return cpp::fail(added_dependencies_ret.error());
+  bool add_dependencies = TRY(prompt_yes_no("Add dependencies?", DEFAULT_ADD_DEPENDENCIES));
+  if (add_dependencies) {
+    TRY(handle_adding_dependencies(project_info));
   }
 
   return project_info;
@@ -51,13 +38,11 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
     defaults_formatted << default_dependencies[last_index].name;
 
 
-  auto add_defaults_ret = prompt_yes_no(
+  auto add_defaults = TRY(prompt_yes_no(
           fmt::format("Add default dependencies? [{}]", defaults_formatted.str()).c_str(),
-          DEFAULT_ADD_DEPENDENCIES);
-  if (add_defaults_ret.has_error())
-    return cpp::fail(add_defaults_ret.error());
+          DEFAULT_ADD_DEPENDENCIES));
 
-  if (add_defaults_ret.value()) {
+  if (add_defaults) {
     spdlog::info("Adding defaul dependencies");
     project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
   }
