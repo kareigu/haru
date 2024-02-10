@@ -63,6 +63,7 @@ set(PROJECT_SOURCES
     src/error.cpp
     src/command.cpp
     src/utils.cpp
+    src/cmake_lists_generator.cpp
 )
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})

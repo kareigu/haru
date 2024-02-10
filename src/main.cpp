@@ -1,4 +1,5 @@
 #include "args_parser.h"
+#include "cmake_lists_generator.h"
 #include "command.h"
 #include "log_formatter.h"
 #include "project_info.h"
@@ -47,6 +48,14 @@ int main(int argc, char** argv) {
     }
     auto project_info = project_info_ret.value();
     spdlog::info("{}", project_info);
+
+    haru::CMakeListsGenerator cmake_generator(project_info);
+    auto generate_ret = cmake_generator.generate();
+    if (generate_ret.has_error()) {
+      spdlog::error("Couldn't generate CMakeLists.txt: {}", generate_ret.error());
+      return EXIT_FAILURE;
+    }
+    std::string cmake_lists_contents = generate_ret.value();
   }
 
   return EXIT_SUCCESS;
