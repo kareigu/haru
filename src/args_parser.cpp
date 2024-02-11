@@ -23,7 +23,11 @@ std::array<args::Flag, 1> ArgsParser::s_flags = {
         args::Flag(ArgsParser::s_parser, "version", "version", {'v', "version"}),
 };
 
-args::HelpFlag ArgsParser::s_help_flag = args::HelpFlag(ArgsParser::s_parser, "help", "help", {'h', "help"});
+std::array<args::HelpFlag, 3> ArgsParser::s_help_flags = {
+        args::HelpFlag(ArgsParser::s_parser, "help", "help", {'h', "help"}),
+        args::HelpFlag(ArgsParser::s_commands[0], "help", "help", {'h', "help"}),
+        args::HelpFlag(ArgsParser::s_commands[1], "help", "help", {'h', "help"}),
+};
 
 
 cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {

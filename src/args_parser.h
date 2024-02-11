@@ -18,10 +18,10 @@ public:
 
 private:
   static args::Group s_commands_group;
-  static args::HelpFlag s_help_flag;
 
   static std::array<args::Command, 2> s_commands;
   static std::array<args::Flag, 1> s_flags;
+  static std::array<args::HelpFlag, 3> s_help_flags;
 
   static args::ArgumentParser s_parser;
 };
