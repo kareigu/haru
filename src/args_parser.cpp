@@ -35,18 +35,18 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
     s_parser.ParseCLI(argc, argv);
   } catch (const args::Help& e) {
     spdlog::info("{}", help_string());
-    return Command::init();
+    return Command::noop();
   } catch (const args::Error& e) {
     if (s_flags[0]) {
       spdlog::info(HARU_VERSION);
-      return Command::init();
+      return Command::noop();
     }
     return cpp::fail(Error(Error::Unknown, e.what()));
   }
 
   if (s_flags[0]) {
     spdlog::info(HARU_VERSION);
-    return Command::init();
+    return Command::noop();
   }
 
   if (s_commands[CommandIndex::Create]) {

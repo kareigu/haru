@@ -1,7 +1,7 @@
 #include "command.h"
 
 namespace haru {
-Command Command::init() {
-  return Command{.type = Type::Init};
+Command Command::noop() {
+  return Command{.type = Type::NoOp, .flags = Flags::None};
 }
 }// namespace haru
