@@ -1,4 +1,5 @@
 #pragma once
+#include "command.h"
 #include "error.h"
 #include <fmt/core.h>
 #include <optional>
@@ -28,7 +29,7 @@ struct ProjectInfo {
   std::string standard;
   std::vector<Dependency> dependencies;
 
-  static cpp::result<ProjectInfo, Error> parse_from_input(std::optional<std::string> default_name = {});
+  static cpp::result<ProjectInfo, Error> parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name = {});
 
 private:
   ProjectInfo() = default;

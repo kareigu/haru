@@ -6,8 +6,20 @@
 namespace haru {
 cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info);
 
-cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(std::optional<std::string> default_name) {
+cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name) {
   ProjectInfo project_info;
+  if (flags & Command::Flags::UseDefaults) {
+    auto default_dependencies = DEFAULT_DEPENDENCIES();
+    if (default_name.has_value())
+      project_info.name = default_name.value();
+    else
+      project_info.name = TRY(prompt<std::string>("Project name"));
+    project_info.cmake_version = DEFAULT_CMAKE_VERSION;
+    project_info.version = DEFAULT_VERSION;
+    project_info.standard = DEFAULT_STD_VERSION;
+    project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
+    return project_info;
+  }
   std::string project_name = TRY(prompt<std::string>("Project name", default_name));
   project_info.name = project_name;
 

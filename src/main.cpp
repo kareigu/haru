@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     if (ran_command.type == haru::Command::Init) {
       default_name = std::filesystem::current_path().filename();
     }
-    auto project_info_ret = haru::ProjectInfo::parse_from_input(default_name);
+    auto project_info_ret = haru::ProjectInfo::parse_from_input(ran_command.flags, default_name);
     if (project_info_ret.has_error()) {
       spdlog::error("Couldn't parse project info: {}", project_info_ret.error());
       return EXIT_FAILURE;

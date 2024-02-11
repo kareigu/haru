@@ -19,8 +19,10 @@ enum CommandIndex : size_t {
   Init,
 };
 
-std::array<args::Flag, 1> ArgsParser::s_flags = {
+std::array<args::Flag, 3> ArgsParser::s_flags = {
         args::Flag(ArgsParser::s_parser, "version", "version", {'v', "version"}),
+        args::Flag(ArgsParser::s_commands[0], "use-defaults", "Use default values", {'d', "use-defaults"}),
+        args::Flag(ArgsParser::s_commands[1], "use-defaults", "Use default values", {'d', "use-defaults"}),
 };
 
 std::array<args::HelpFlag, 3> ArgsParser::s_help_flags = {
@@ -50,11 +52,17 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
   }
 
   if (s_commands[CommandIndex::Create]) {
-    return Command{.type = Command::Create};
+    Command::Flags_t flags = Command::Flags::None;
+    if (s_flags[1])
+      flags |= Command::Flags::UseDefaults;
+    return Command{.type = Command::Create, .flags = flags};
   }
 
   if (s_commands[CommandIndex::Init]) {
-    return Command{.type = Command::Init};
+    Command::Flags_t flags = Command::Flags::None;
+    if (s_flags[2])
+      flags |= Command::Flags::UseDefaults;
+    return Command{.type = Command::Init, .flags = flags};
   }
 
   return cpp::fail(Error(Error::Unknown));
