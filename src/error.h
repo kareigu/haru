@@ -14,11 +14,13 @@ public:
   enum class Type : TypeAsInt {
     NoInput,
     InputError,
+    Write,
     Unknown = TypeMaxValue,
   };
   using Type::InputError;
   using Type::NoInput;
   using Type::Unknown;
+  using Type::Write;
 
   Error(Type type) : m_type(type) {}
   Error(Type type, std::string message) : m_type(type), m_message(message) {}

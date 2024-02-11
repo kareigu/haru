@@ -6,6 +6,7 @@ constexpr const char** init_type_as_string(auto max_value) {
 
   array[static_cast<IntType>(haru::Error::NoInput)] = "NoInput";
   array[static_cast<IntType>(haru::Error::InputError)] = "InputError";
+  array[static_cast<IntType>(haru::Error::Write)] = "WriteError";
   array[max_value] = "Unknown";
 
   return array;
