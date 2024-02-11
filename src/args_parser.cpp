@@ -8,7 +8,7 @@
 namespace haru {
 constexpr const char* EPILOG = HARU_PRG_NAME " v" HARU_VERSION " - " RELEASE_TYPE;
 args::ArgumentParser ArgsParser::s_parser = args::ArgumentParser("C++ cmake project generator", EPILOG);
-args::Group ArgsParser::s_commands_group = args::Group(s_parser, "COMMANDS");
+args::Group ArgsParser::s_commands_group = args::Group(s_parser, "COMMANDS", args::Group::Validators::Xor, args::Options::Global);
 
 std::array<args::Command, 2> ArgsParser::s_commands = {
         args::Command(ArgsParser::s_commands_group, "create", "Create a project in a new directory"),
