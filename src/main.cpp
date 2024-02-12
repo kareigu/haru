@@ -4,6 +4,7 @@
 #include "file_operations.h"
 #include "log_formatter.h"
 #include "project_info.h"
+#include "utils.h"
 #include <cstdlib>
 #include <filesystem>
 #include <fmt/core.h>
@@ -43,12 +44,7 @@ int main(int argc, char** argv) {
     if (init) {
       default_name = std::filesystem::current_path().filename();
     }
-    auto project_info_ret = haru::ProjectInfo::parse_from_input(ran_command.flags, default_name);
-    if (project_info_ret.has_error()) {
-      spdlog::error("Couldn't parse project info: {}", project_info_ret.error());
-      return EXIT_FAILURE;
-    }
-    auto project_info = project_info_ret.value();
+    auto project_info = MUST(haru::ProjectInfo::parse_from_input(ran_command.flags, default_name));
     spdlog::info("{}", project_info);
 
     haru::CMakeListsGenerator cmake_generator(project_info);
@@ -59,12 +55,8 @@ int main(int argc, char** argv) {
     }
     std::string cmake_lists_contents = generate_ret.value();
 
-    auto workpath_ret = haru::create_work_directory(init, project_info.name);
-    if (workpath_ret.has_error()) {
-      spdlog::error(workpath_ret.error());
-      return EXIT_FAILURE;
-    }
-    std::filesystem::path workpath = workpath_ret.value();
+    auto workpath_ret = MUST(haru::create_work_directory(init, project_info.name));
+    std::filesystem::path workpath = workpath_ret;
 
     auto cmake_lists_write_ret = haru::write_cmake_lists(workpath, cmake_lists_contents);
     if (cmake_lists_write_ret.has_error()) {
