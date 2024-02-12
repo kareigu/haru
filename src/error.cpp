@@ -4,12 +4,13 @@ constexpr const char** init_type_as_string(auto max_value) {
   const char** array = new const char*[max_value];
   using IntType = haru::Error::TypeAsInt;
 
-  array[static_cast<IntType>(haru::Error::NoInput)] = "NoInput";
-  array[static_cast<IntType>(haru::Error::InputError)] = "InputError";
-  array[static_cast<IntType>(haru::Error::Write)] = "WriteError";
-  array[static_cast<IntType>(haru::Error::AlreadyExists)] = "AlreadyExists";
-  array[static_cast<IntType>(haru::Error::IOError)] = "IOError";
-  array[static_cast<IntType>(haru::Error::Generate)] = "Generate";
+#define ERR_STR(VARIANT) array[static_cast<IntType>(haru::Error::VARIANT)] = #VARIANT
+  ERR_STR(NoInput);
+  ERR_STR(InputError);
+  ERR_STR(Write);
+  ERR_STR(AlreadyExists);
+  ERR_STR(IOError);
+  ERR_STR(Generate);
   array[max_value] = "Unknown";
 
   return array;
