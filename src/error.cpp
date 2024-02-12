@@ -9,6 +9,7 @@ constexpr const char** init_type_as_string(auto max_value) {
   array[static_cast<IntType>(haru::Error::Write)] = "WriteError";
   array[static_cast<IntType>(haru::Error::AlreadyExists)] = "AlreadyExists";
   array[static_cast<IntType>(haru::Error::IOError)] = "IOError";
+  array[static_cast<IntType>(haru::Error::Generate)] = "Generate";
   array[max_value] = "Unknown";
 
   return array;

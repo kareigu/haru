@@ -50,6 +50,9 @@ cpp::result<std::string, Error> CMakeListsGenerator::generate() {
   }
   output << ")\n";
 
+  if (output.fail() || output.bad())
+    return cpp::fail(Error(Error::Generate, "Error writing generated CMakesLists.txt to buffer"));
+
 
   return output.str();
 }

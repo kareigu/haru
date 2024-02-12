@@ -17,9 +17,11 @@ public:
     Write,
     AlreadyExists,
     IOError,
+    Generate,
     Unknown = TypeMaxValue,
   };
   using Type::AlreadyExists;
+  using Type::Generate;
   using Type::InputError;
   using Type::IOError;
   using Type::NoInput;
