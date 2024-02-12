@@ -15,6 +15,15 @@
   _temp_ret.value();                     \
 })
 
+#define MUST(EXPR) ({                 \
+  auto&& _temp_ret = (EXPR);          \
+  if (_temp_ret.has_error()) {        \
+    spdlog::error(_temp_ret.error()); \
+    std::exit(EXIT_FAILURE);          \
+  }                                   \
+  _temp_ret.value();                  \
+})
+
 namespace haru {
 
 /**
