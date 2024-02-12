@@ -15,9 +15,13 @@ public:
     NoInput,
     InputError,
     Write,
+    AlreadyExists,
+    IOError,
     Unknown = TypeMaxValue,
   };
+  using Type::AlreadyExists;
   using Type::InputError;
+  using Type::IOError;
   using Type::NoInput;
   using Type::Unknown;
   using Type::Write;

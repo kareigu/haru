@@ -59,17 +59,12 @@ int main(int argc, char** argv) {
     }
     std::string cmake_lists_contents = generate_ret.value();
 
-    auto workpath = std::filesystem::current_path();
-    if (!init) {
-      if (!std::filesystem::create_directory(project_info.name)) {
-        spdlog::error("Couldn't create directory '{:s}'", project_info.name);
-        return EXIT_FAILURE;
-      }
-      workpath += "/" + project_info.name;
-      spdlog::info("Created project directory {:s}", workpath.string());
-    } else {
-      spdlog::info("Using project directory {:s}", workpath.string());
+    auto workpath_ret = haru::create_work_directory(init, project_info.name);
+    if (workpath_ret.has_error()) {
+      spdlog::error(workpath_ret.error());
+      return EXIT_FAILURE;
     }
+    std::filesystem::path workpath = workpath_ret.value();
 
     auto cmake_lists_write_ret = haru::write_cmake_lists(workpath, cmake_lists_contents);
     if (cmake_lists_write_ret.has_error()) {
