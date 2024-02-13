@@ -69,8 +69,8 @@ struct fmt::formatter<haru::Error> {
   auto format(haru::Error error, format_context& ctx) const {
     if (error.message()) {
       const std::string& message = error.message().value();
-      return format_to(ctx.out(), "{} - {}", error.type(), message);
+      return format_to(ctx.out(), "[{}]{}", error.type(), message);
     } else
-      return format_to(ctx.out(), "{}", error.type());
+      return format_to(ctx.out(), "[{}]", error.type());
   }
 };
