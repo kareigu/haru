@@ -22,10 +22,21 @@ cpp::result<std::string, Error> CMakeListsGenerator::generate() {
   if (include_fetch)
     output << "\ninclude(FetchContent)\n";
 
-  output << fmt::format("\nproject(\n  {:s}\n  VERSION {:s}\n  LANGUAGES CXX\n)", m_project_info.name, m_project_info.version);
+  output << fmt::format("\nproject(\n  {:s}\n  VERSION {:s}\n  LANGUAGES ", m_project_info.name, m_project_info.version);
+  if (m_project_info.languages & Language::cpp)
+    output << "CXX ";
+  if (m_project_info.languages & Language::c)
+    output << "C";
+  output << "\n)\n";
 
-  output << fmt::format("\nset(CMAKE_CXX_STANDARD {:s})\n", m_project_info.standard);
-  output << "set(CMAKE_CXX_STANDARD_REQUIRED TRUE)\n";
+  if (m_project_info.languages & Language::cpp) {
+    output << fmt::format("\nset(CMAKE_CXX_STANDARD {:s})\n", m_project_info.standard[0]);
+    output << "set(CMAKE_CXX_STANDARD_REQUIRED TRUE)\n";
+  }
+  if (m_project_info.languages & Language::c) {
+    output << fmt::format("\nset(CMAKE_C_STANDARD {:s})\n", m_project_info.standard[1]);
+    output << "set(CMAKE_C_STANDARD_REQUIRED TRUE)\n";
+  }
 
 
   if (include_fetch) {
@@ -40,7 +51,7 @@ cpp::result<std::string, Error> CMakeListsGenerator::generate() {
     }
   }
 
-  output << "\nset(PROJECT_SOURCES src/main.cpp)\n";
+  output << fmt::format("\nset(PROJECT_SOURCES {:s})\n", m_project_info.entry_point);
 
   output << "\nadd_executable(${PROJECT_NAME} ${PROJECT_SOURCES})\n";
   output << "target_link_libraries(\n  ${PROJECT_NAME}\n";

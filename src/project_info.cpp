@@ -8,6 +8,7 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info);
 
 cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name) {
   ProjectInfo project_info;
+  auto default_std_versions = DEFAULT_STD_VERSIONS();
   if (flags & Command::Flags::UseDefaults) {
     auto default_dependencies = DEFAULT_DEPENDENCIES();
     if (default_name.has_value())
@@ -16,7 +17,10 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
       project_info.name = TRY(prompt<std::string>("Project name"));
     project_info.cmake_version = DEFAULT_CMAKE_VERSION;
     project_info.version = DEFAULT_VERSION;
-    project_info.standard = DEFAULT_STD_VERSION;
+    project_info.languages = Language::cpp;
+    project_info.standard[0] = default_std_versions[0];
+    project_info.standard[1] = default_std_versions[1];
+    project_info.entry_point = fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT);
     project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
     return project_info;
   }
@@ -29,8 +33,39 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
   std::string version = TRY(prompt<std::string>("version", DEFAULT_VERSION));
   project_info.version = version;
 
-  std::string standard = TRY(prompt<std::string>("C++-standard", DEFAULT_STD_VERSION));
-  project_info.standard = standard;
+  std::string languages = TRY(prompt<std::string>(fmt::format("languages [{:s}]",
+                                                              Language::to_string(Language::both))
+                                                          .c_str(),
+                                                  DEFAULT_LANGUAGES));
+  std::vector<std::string_view> input_languages;
+  {
+    size_t prev_start = 0;
+    for (size_t i = 0; i < languages.size(); i++) {
+      if (languages[i] != ',')
+        continue;
+      input_languages.push_back(std::string_view(languages.data() + prev_start, languages.data() + i));
+      prev_start = i + 1;
+    }
+    input_languages.push_back(std::string_view(languages.data() + prev_start, languages.data() + languages.size()));
+  }
+  for (const auto& language : input_languages) {
+    if (language == Language::to_string(Language::cpp)) {
+      project_info.languages |= Language::cpp;
+      std::string standard = TRY(prompt<std::string>("C++-standard", default_std_versions[0]));
+      project_info.standard[0] = standard;
+    }
+    if (language == Language::to_string(Language::c)) {
+      project_info.languages |= Language::c;
+      std::string standard = TRY(prompt<std::string>("C-standard", default_std_versions[1]));
+      project_info.standard[1] = standard;
+    }
+  }
+  if (project_info.languages == Language::none)
+    return cpp::fail(Error(Error::InputError, "You need select at least 1 valid language"));
+
+  std::string default_entry_point = project_info.languages & Language::cpp ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT) : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
+  std::string entry_point = TRY(prompt<std::string>("entry_point", default_entry_point));
+  project_info.entry_point = entry_point;
 
   bool add_dependencies = TRY(prompt_yes_no("Add dependencies?", DEFAULT_ADD_DEPENDENCIES));
   if (add_dependencies) {

@@ -21,12 +21,35 @@ struct Dependency {
   Source source;
 };
 
+using Language_t = uint8_t;
+namespace Language {
+  constexpr Language_t none = 0;
+  constexpr Language_t cpp = 1;
+  constexpr Language_t c = 2;
+  constexpr Language_t both = cpp | c;
+
+
+  constexpr const char* to_string(Language_t language) {
+    if (language == Language::both)
+      return "cpp,c";
+
+    if (language & Language::cpp)
+      return "cpp";
+
+    if (language & Language::c)
+      return "c";
+
+    return "Unsupported";
+  }
+}// namespace Language
 
 struct ProjectInfo {
   std::string cmake_version;
   std::string name;
   std::string version;
-  std::string standard;
+  Language_t languages = 0;
+  std::array<std::string, 2> standard;
+  std::string entry_point;
   std::vector<Dependency> dependencies;
 
   static cpp::result<ProjectInfo, Error> parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name = {});
@@ -79,7 +102,12 @@ struct fmt::formatter<haru::ProjectInfo> {
     fmt::format_to(ctx.out(), "cmake_version = \"{:s}\"\n", info.cmake_version);
     fmt::format_to(ctx.out(), "name = \"{:s}\"\n", info.name);
     fmt::format_to(ctx.out(), "version = {:s}\n", info.version);
-    fmt::format_to(ctx.out(), "C++-standard = {:s}\n", info.standard);
+    fmt::format_to(ctx.out(), "languages = {:s}\n", haru::Language::to_string(info.languages));
+    if (info.languages & haru::Language::cpp)
+      fmt::format_to(ctx.out(), "C++-standard = {:s}\n", info.standard[0]);
+    if (info.languages & haru::Language::c)
+      fmt::format_to(ctx.out(), "C-standard = {:s}\n", info.standard[1]);
+    fmt::format_to(ctx.out(), "entry_point = {:s}\n", info.entry_point);
     if (info.dependencies.size() > 0)
       fmt::format_to(ctx.out(), "dependencies = {:s}\n", dependencies.str());
     return ctx.out();
