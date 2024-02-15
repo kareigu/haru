@@ -53,6 +53,91 @@ cpp::result<T, Error> prompt(const char* text, std::optional<T> default_value = 
   return value;
 }
 
+template<typename T>
+cpp::result<std::vector<T>, Error> prompt_list(const char* text, std::vector<T> valid_values, std::optional<std::vector<T>> default_values = {}, bool new_line = false) {
+  std::string default_values_formatted;
+  if (default_values.has_value()) {
+    auto values = default_values.value();
+    if (values.empty())
+      goto empty_defaults;
+    std::stringstream ss;
+    ss << " (";
+    for (size_t i = 0; i < values.size() - 1; i++)
+      ss << fmt::format("{}, ", values[i]);
+    ss << fmt::format("{})", values[values.size() - 1]);
+    default_values_formatted = ss.str();
+  }
+empty_defaults:
+
+  std::string valid_values_formatted;
+  if (valid_values.empty())
+    return cpp::fail(Error(Error::Unknown, "Implementation error, missing valid values"));
+
+  {
+    std::ostringstream ss;
+    ss << "[";
+    for (size_t i = 0; i < valid_values.size() - 1; i++)
+      ss << fmt::format("{}, ", valid_values[i]);
+    ss << fmt::format("{}]", valid_values[valid_values.size() - 1]);
+    valid_values_formatted = ss.str();
+  }
+
+  fmt::print("{:s} {:s}{:s}: ", text, valid_values_formatted, default_values_formatted);
+  if (new_line)
+    fmt::println("");
+
+  std::string value_input;
+  std::getline(std::cin, value_input);
+
+
+  if (!default_values.has_value() && value_input.empty())
+    return cpp::fail(Error(Error::Type::NoInput, fmt::format("{} needs to be given", text)));
+
+  if (default_values.has_value() && value_input.empty())
+    return default_values.value();
+
+  std::vector<std::istringstream> inputs;
+  size_t prev_start = 0;
+  for (size_t i = 0; i < value_input.size(); i++) {
+    const char& c = value_input[i];
+    if (c != ' ' && c != ',')
+      continue;
+    if (i == 0)
+      continue;
+    if (value_input[i - 1] == ' ' || value_input[i - 1] == ',')
+      continue;
+
+
+    inputs.push_back(std::istringstream(std::string(value_input.data() + prev_start, value_input.data() + i)));
+    prev_start = i + 1;
+  }
+  inputs.push_back(std::istringstream(std::string(value_input.data() + prev_start, value_input.data() + value_input.size())));
+
+  std::vector<T> ret(inputs.size());
+  for (size_t i = 0; i < inputs.size(); i++) {
+    auto& input = inputs[i];
+    T value;
+    input >> value;
+    if (input.bad() || input.fail())
+      return cpp::fail(Error(Error::InputError, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
+
+    bool invalid = true;
+    for (const auto& valid_value : valid_values) {
+      if (valid_value == value) {
+        invalid = false;
+        break;
+      }
+    }
+    if (invalid)
+      return cpp::fail(Error(Error::InputError, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
+
+
+    ret[i] = std::move(value);
+  }
+
+  return ret;
+}
+
 cpp::result<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line = false);
 
 }// namespace haru
