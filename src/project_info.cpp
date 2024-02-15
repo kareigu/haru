@@ -24,14 +24,9 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
     project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
     return project_info;
   }
-  std::string project_name = TRY(prompt<std::string>("Project name", default_name));
-  project_info.name = project_name;
-
-  std::string cmake_version = TRY(prompt<std::string>("Minimum cmake version", DEFAULT_CMAKE_VERSION));
-  project_info.cmake_version = cmake_version;
-
-  std::string version = TRY(prompt<std::string>("version", DEFAULT_VERSION));
-  project_info.version = version;
+  project_info.name = TRY(prompt<std::string>("Project name", default_name));
+  project_info.cmake_version = TRY(prompt<std::string>("Minimum CMake version", DEFAULT_CMAKE_VERSION));
+  project_info.version = TRY(prompt<std::string>("Version", DEFAULT_VERSION));
 
   std::vector<std::string> input_languages = TRY(prompt_list<std::string>(
           "Languages",
@@ -53,8 +48,7 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
     return cpp::fail(Error(Error::InputError, "You need select at least 1 valid language"));
 
   std::string default_entry_point = project_info.languages & Language::cpp ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT) : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
-  std::string entry_point = TRY(prompt<std::string>("entry_point", default_entry_point));
-  project_info.entry_point = entry_point;
+  project_info.entry_point = TRY(prompt<std::string>("Entrypoint", default_entry_point));
 
   bool add_dependencies = TRY(prompt_yes_no("Add dependencies?", DEFAULT_ADD_DEPENDENCIES));
   if (add_dependencies) {
