@@ -33,21 +33,10 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
   std::string version = TRY(prompt<std::string>("version", DEFAULT_VERSION));
   project_info.version = version;
 
-  std::string languages = TRY(prompt<std::string>(fmt::format("languages [{:s}]",
-                                                              Language::to_string(Language::both))
-                                                          .c_str(),
-                                                  DEFAULT_LANGUAGES));
-  std::vector<std::string_view> input_languages;
-  {
-    size_t prev_start = 0;
-    for (size_t i = 0; i < languages.size(); i++) {
-      if (languages[i] != ',')
-        continue;
-      input_languages.push_back(std::string_view(languages.data() + prev_start, languages.data() + i));
-      prev_start = i + 1;
-    }
-    input_languages.push_back(std::string_view(languages.data() + prev_start, languages.data() + languages.size()));
-  }
+  std::vector<std::string> input_languages = TRY(prompt_list<std::string>(
+          "Languages",
+          std::vector<std::string>{Language::to_string(Language::cpp), Language::to_string(Language::c)},
+          std::vector<std::string>{Language::to_string(Language::cpp)}));
   for (const auto& language : input_languages) {
     if (language == Language::to_string(Language::cpp)) {
       project_info.languages |= Language::cpp;

@@ -31,7 +31,7 @@ namespace Language {
 
   constexpr const char* to_string(Language_t language) {
     if (language == Language::both)
-      return "cpp,c";
+      return "cpp, c";
 
     if (language & Language::cpp)
       return "cpp";
