@@ -61,6 +61,11 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
     TRY(handle_adding_dependencies(project_info));
   }
 
+  spdlog::info("\nCurrent settings:\n{}", project_info);
+  bool proceed = TRY(prompt_yes_no("Proceed?", true));
+  if (!proceed)
+    return ProjectInfo::parse_from_input(flags, default_name);
+
   return project_info;
 }
 

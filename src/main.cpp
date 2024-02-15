@@ -45,7 +45,6 @@ int main(int argc, char** argv) {
       default_name = std::filesystem::current_path().filename();
     }
     auto project_info = MUST(haru::ProjectInfo::parse_from_input(ran_command.flags, default_name));
-    spdlog::info("{}", project_info);
 
     haru::CMakeListsGenerator cmake_generator(project_info);
     auto generate_ret = cmake_generator.generate();
