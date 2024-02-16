@@ -42,6 +42,42 @@ cpp::result<void, Error> write_cmake_lists(const std::filesystem::path& workpath
   return {};
 }
 
+cpp::result<void, Error> write_entry_point(const std::filesystem::path& workpath, const std::string& entry_point, Language_t languages) {
+  if (!(languages & Language::cpp) && !(languages & Language::c))
+    return cpp::fail(Error(Error::IOError, "Unsupported language"));
+
+  auto full_path = workpath;
+  full_path += "/" + entry_point;
+  auto folder = full_path;
+  folder.remove_filename();
+  if (!std::filesystem::create_directory(folder))
+    return cpp::fail(Error(Error::IOError, fmt::format("Failed creating directory {:s}", folder.string())));
+
+  std::ofstream output(full_path);
+  if (!output.is_open())
+    return cpp::fail(Error(Error::IOError, "Could not open entry point file for writing"));
+
+  if (languages & Language::cpp)
+    output << "#include <iostream>\n\n";
+  else if (languages & Language::c)
+    output << "#include <stdio.h>\n\n";
+
+  output << "int main() {\n";
+  if (languages & Language::cpp)
+    output << "  std::cout << \"" HARU_PRG_NAME "\" << std::endl;\n\n";
+  else if (languages & Language::c)
+    output << "  printf(\"" HARU_PRG_NAME "\n\");\n\n";
+
+  output << "  return 0;\n";
+  output << "}";
+
+  if (output.fail() || output.bad())
+    return cpp::fail(Error(Error::Write, fmt::format("Failed writing {:s}", full_path.string())));
+
+  spdlog::info("Wrote {:s}", full_path.string());
+  return {};
+}
+
 cpp::result<void, Error> write_default_files(const std::filesystem::path& workpath, DefaultFiles_t default_files) {
   if (default_files & DefaultFiles::clang_format) {
     auto filepath = workpath;

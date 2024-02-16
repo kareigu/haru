@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
       return EXIT_FAILURE;
     }
 
+    MUST(haru::write_entry_point(workpath, project_info.entry_point, project_info.languages));
     MUST(haru::write_default_files(workpath, project_info.default_files));
   }
 
