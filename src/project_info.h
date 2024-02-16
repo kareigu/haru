@@ -43,6 +43,17 @@ namespace Language {
   }
 }// namespace Language
 
+using DefaultFiles_t = uint8_t;
+namespace DefaultFiles {
+  constexpr DefaultFiles_t none = 0;
+  constexpr DefaultFiles_t clang_format = 1;
+  constexpr DefaultFiles_t cmake_format = 2;
+  constexpr DefaultFiles_t gitignore = 4;
+  constexpr DefaultFiles_t all = clang_format | cmake_format | gitignore;
+
+  std::string to_string(DefaultFiles_t files);
+}// namespace DefaultFiles
+
 struct ProjectInfo {
   std::string cmake_version;
   std::string name;
@@ -50,6 +61,7 @@ struct ProjectInfo {
   Language_t languages = 0;
   std::array<std::string, 2> standard;
   std::string entry_point;
+  DefaultFiles_t default_files = DefaultFiles::none;
   std::vector<Dependency> dependencies;
 
   static cpp::result<ProjectInfo, Error> parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name = {});
@@ -108,6 +120,7 @@ struct fmt::formatter<haru::ProjectInfo> {
     if (info.languages & haru::Language::c)
       fmt::format_to(ctx.out(), "C-standard = {:s}\n", info.standard[1]);
     fmt::format_to(ctx.out(), "entry_point = {:s}\n", info.entry_point);
+    fmt::format_to(ctx.out(), "default_files = {:s}\n", haru::DefaultFiles::to_string(info.default_files));
     if (info.dependencies.size() > 0)
       fmt::format_to(ctx.out(), "dependencies = {:s}\n", dependencies.str());
     return ctx.out();

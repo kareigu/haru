@@ -62,6 +62,8 @@ int main(int argc, char** argv) {
       spdlog::error("{}", cmake_lists_write_ret.error());
       return EXIT_FAILURE;
     }
+
+    MUST(haru::write_default_files(workpath, project_info.default_files));
   }
 
   return EXIT_SUCCESS;

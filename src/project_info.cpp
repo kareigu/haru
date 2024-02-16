@@ -21,6 +21,7 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
     project_info.standard[0] = default_std_versions[0];
     project_info.standard[1] = default_std_versions[1];
     project_info.entry_point = fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT);
+    project_info.default_files = DEFAULT_FILES;
     project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
     return project_info;
   }
@@ -49,6 +50,27 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
 
   std::string default_entry_point = project_info.languages & Language::cpp ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT) : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
   project_info.entry_point = TRY(prompt<std::string>("Entrypoint", default_entry_point));
+
+  std::vector<std::string> default_files = {
+          DefaultFiles::to_string(DefaultFiles::clang_format),
+          DefaultFiles::to_string(DefaultFiles::cmake_format),
+          DefaultFiles::to_string(DefaultFiles::gitignore),
+  };
+  std::vector<std::string> input_default_files = TRY(prompt_list<std::string>("Default files", default_files, default_files));
+  for (const auto& file : input_default_files) {
+    if (file == DefaultFiles::to_string(DefaultFiles::clang_format)) {
+      project_info.default_files |= DefaultFiles::clang_format;
+      continue;
+    }
+    if (file == DefaultFiles::to_string(DefaultFiles::cmake_format)) {
+      project_info.default_files |= DefaultFiles::cmake_format;
+      continue;
+    }
+    if (file == DefaultFiles::to_string(DefaultFiles::gitignore)) {
+      project_info.default_files |= DefaultFiles::gitignore;
+      continue;
+    }
+  }
 
   bool add_dependencies = TRY(prompt_yes_no("Add dependencies?", DEFAULT_ADD_DEPENDENCIES));
   if (add_dependencies) {
@@ -125,4 +147,26 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
   return {};
 }
 
+std::string DefaultFiles::to_string(DefaultFiles_t files) {
+  if (files == none)
+    return "none";
+  std::ostringstream ss;
+  if (files & clang_format)
+    ss << "clang_format, ";
+
+  if (files & cmake_format)
+    ss << "cmake_format, ";
+
+  if (files & gitignore)
+    ss << "gitignore, ";
+
+  std::string str = ss.str();
+  if (str.size() == 0)
+    return "Unsupported";
+
+  str.pop_back();
+  str.pop_back();
+
+  return str;
+}
 }// namespace haru

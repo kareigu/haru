@@ -12,6 +12,7 @@ constexpr std::array<const char*, 2> DEFAULT_STD_VERSIONS() {
           "11"};
 };
 constexpr const char* DEFAULT_ENTRY_POINT = "src/main";
+constexpr DefaultFiles_t DEFAULT_FILES = DefaultFiles::all;
 constexpr bool DEFAULT_ADD_DEPENDENCIES = true;
 
 constexpr std::array<Dependency, 2> DEFAULT_DEPENDENCIES() {

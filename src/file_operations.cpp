@@ -1,4 +1,5 @@
 #include "file_operations.h"
+#include "bake_in.h"
 #include "utils.h"
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -38,6 +39,40 @@ cpp::result<void, Error> write_cmake_lists(const std::filesystem::path& workpath
     return cpp::fail(Error(Error::Write, "Failed writing CMakeLists.txt"));
 
   spdlog::info("Wrote {}", filepath.string());
+  return {};
+}
+
+cpp::result<void, Error> write_default_files(const std::filesystem::path& workpath, DefaultFiles_t default_files) {
+  if (default_files & DefaultFiles::clang_format) {
+    auto filepath = workpath;
+    filepath += "/.clang-format";
+    std::ofstream output(filepath);
+    for (size_t i = 0; i < bake_in_clang_format_len; i++)
+      output << static_cast<char>(bake_in_clang_format[i]);
+    if (output.bad() || output.fail())
+      return cpp::fail(Error(Error::Write, "Failed writing .clang-format"));
+    spdlog::info("Wrote {:s}", filepath.string());
+  }
+  if (default_files & DefaultFiles::cmake_format) {
+    auto filepath = workpath;
+    filepath += "/.cmake-format.py";
+    std::ofstream output(filepath);
+    for (size_t i = 0; i < bake_in_cmake_format_len; i++)
+      output << static_cast<char>(bake_in_cmake_format[i]);
+    if (output.bad() || output.fail())
+      return cpp::fail(Error(Error::Write, "Failed writing .cmake_format.py"));
+    spdlog::info("Wrote {:s}", filepath.string());
+  }
+  if (default_files & DefaultFiles::gitignore) {
+    auto filepath = workpath;
+    filepath += "/.gitignore";
+    std::ofstream output(filepath);
+    for (size_t i = 0; i < bake_in_gitignore_len; i++)
+      output << static_cast<char>(bake_in_gitignore[i]);
+    if (output.bad() || output.fail())
+      return cpp::fail(Error(Error::Write, "Failed writing .gitignore"));
+    spdlog::info("Wrote {:s}", filepath.string());
+  }
   return {};
 }
 }// namespace haru
