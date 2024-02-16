@@ -1,16 +1,27 @@
 #include "file_operations.h"
 #include "bake_in.h"
 #include "utils.h"
+#include <filesystem>
 #include <fstream>
 #include <spdlog/spdlog.h>
+#include <system_error>
 
 namespace haru {
-cpp::result<std::filesystem::path, Error> create_work_directory(bool init, const std::string& name) {
+cpp::result<std::filesystem::path, Error> create_work_directory(bool init, const std::string& name, bool overwrite) {
   auto workpath = std::filesystem::current_path();
   if (!init) {
     workpath += "/" + name;
-    if (std::filesystem::exists(workpath))
-      return cpp::fail(Error(Error::AlreadyExists, fmt::format("{:s} already exists at {:s}", name, workpath.string())));
+    if (std::filesystem::exists(workpath)) {
+      if (!overwrite)
+        return cpp::fail(Error(Error::AlreadyExists, fmt::format("{:s} already exists at {:s}. Use '--force' to overwrite", name, workpath.string())));
+
+      std::error_code ec;
+      std::filesystem::remove_all(workpath, ec);
+      if (ec)
+        return cpp::fail(Error(
+                Error::IOError,
+                fmt::format("Could not remove existing directory at {:s}, {:s}", workpath.string(), ec.message())));
+    }
 
     if (!std::filesystem::create_directory(workpath)) {
       return cpp::fail(Error(Error::IOError, fmt::format("Could not create directory at {:s}", workpath.string())));

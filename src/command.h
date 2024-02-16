@@ -14,6 +14,7 @@ public:
   struct Flags {
     static constexpr Command::Flags_t None = 0;
     static constexpr Command::Flags_t UseDefaults = 1;
+    static constexpr Command::Flags_t Force = 2;
   };
 
   using Type::Create;

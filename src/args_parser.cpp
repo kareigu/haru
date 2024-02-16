@@ -19,16 +19,17 @@ enum CommandIndex : size_t {
   Init,
 };
 
-std::array<args::Flag, 3> ArgsParser::s_flags = {
+std::array<args::Flag, 4> ArgsParser::s_flags = {
         args::Flag(ArgsParser::s_parser, "version", "version", {'v', "version"}),
-        args::Flag(ArgsParser::s_commands[0], "use-defaults", "Use default values", {'d', "use-defaults"}),
-        args::Flag(ArgsParser::s_commands[1], "use-defaults", "Use default values", {'d', "use-defaults"}),
+        args::Flag(ArgsParser::s_commands[CommandIndex::Create], "use-defaults", "Use default values", {'d', "use-defaults"}),
+        args::Flag(ArgsParser::s_commands[CommandIndex::Init], "use-defaults", "Use default values", {'d', "use-defaults"}),
+        args::Flag(ArgsParser::s_commands[CommandIndex::Create], "force", "Force new directory creation", {'f', "force"}),
 };
 
 std::array<args::HelpFlag, 3> ArgsParser::s_help_flags = {
         args::HelpFlag(ArgsParser::s_parser, "help", "help", {'h', "help"}),
-        args::HelpFlag(ArgsParser::s_commands[0], "help", "help", {'h', "help"}),
-        args::HelpFlag(ArgsParser::s_commands[1], "help", "help", {'h', "help"}),
+        args::HelpFlag(ArgsParser::s_commands[CommandIndex::Create], "help", "help", {'h', "help"}),
+        args::HelpFlag(ArgsParser::s_commands[CommandIndex::Init], "help", "help", {'h', "help"}),
 };
 
 
@@ -55,6 +56,8 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
     Command::Flags_t flags = Command::Flags::None;
     if (s_flags[1])
       flags |= Command::Flags::UseDefaults;
+    if (s_flags[3])
+      flags |= Command::Flags::Force;
     return Command{.type = Command::Create, .flags = flags};
   }
 
