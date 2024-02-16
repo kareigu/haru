@@ -35,7 +35,7 @@ cpp::result<void, Error> write_cmake_lists(const std::filesystem::path& workpath
   filepath += "/CMakeLists.txt";
   std::ofstream output(filepath);
   output << contents;
-  if (output.rdstate() & (std::ofstream::failbit | std::ofstream::badbit))
+  if (output.fail() || output.bad())
     return cpp::fail(Error(Error::Write, "Failed writing CMakeLists.txt"));
 
   spdlog::info("Wrote {}", filepath.string());

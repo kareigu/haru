@@ -47,22 +47,10 @@ int main(int argc, char** argv) {
     auto project_info = MUST(haru::ProjectInfo::parse_from_input(ran_command.flags, default_name));
 
     haru::CMakeListsGenerator cmake_generator(project_info);
-    auto generate_ret = cmake_generator.generate();
-    if (generate_ret.has_error()) {
-      spdlog::error("Couldn't generate CMakeLists.txt: {}", generate_ret.error());
-      return EXIT_FAILURE;
-    }
-    std::string cmake_lists_contents = generate_ret.value();
+    std::string cmake_lists_contents = MUST(cmake_generator.generate());
 
-    auto workpath_ret = MUST(haru::create_work_directory(init, project_info.name));
-    std::filesystem::path workpath = workpath_ret;
-
-    auto cmake_lists_write_ret = haru::write_cmake_lists(workpath, cmake_lists_contents);
-    if (cmake_lists_write_ret.has_error()) {
-      spdlog::error("{}", cmake_lists_write_ret.error());
-      return EXIT_FAILURE;
-    }
-
+    std::filesystem::path workpath = MUST(haru::create_work_directory(init, project_info.name));
+    MUST(haru::write_cmake_lists(workpath, cmake_lists_contents));
     MUST(haru::write_entry_point(workpath, project_info.entry_point, project_info.languages));
     MUST(haru::write_default_files(workpath, project_info.default_files));
   }
