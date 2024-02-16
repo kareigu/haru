@@ -77,7 +77,7 @@ cpp::result<void, Error> write_entry_point(const std::filesystem::path& workpath
   if (languages & Language::cpp)
     output << "  std::cout << \"" HARU_PRG_NAME "\" << std::endl;\n\n";
   else if (languages & Language::c)
-    output << "  printf(\"" HARU_PRG_NAME "\n\");\n\n";
+    output << "  printf(\"" HARU_PRG_NAME "\\n\");\n\n";
 
   output << "  return 0;\n";
   output << "}";
