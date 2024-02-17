@@ -41,7 +41,7 @@ void LogFormatter::format(const spdlog::details::log_msg& msg, spdlog::memory_bu
 
 void ErrorFlag::format(const spdlog::details::log_msg& msg, const std::tm& time, spdlog::memory_buf_t& dest) {
   auto string = msg.payload;
-  size_t first, last = 0;
+  size_t first = 0, last = 0;
   for (size_t i = 0; i < string.size(); i++) {
     if (string[i] == '[')
       first = i + 1;
@@ -49,6 +49,10 @@ void ErrorFlag::format(const spdlog::details::log_msg& msg, const std::tm& time,
       last = i;
       break;
     }
+  }
+  if (first == last) {
+    static const char* err = "UnknownError";
+    dest.append(err, err + 13);
   }
   dest.append(string.data() + first, string.data() + last);
 }

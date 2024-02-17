@@ -1,6 +1,7 @@
 #include "args_parser.h"
 #include "cmake_lists_generator.h"
 #include "command.h"
+#include "error.h"
 #include "file_operations.h"
 #include "log_formatter.h"
 #include "project_info.h"
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
   spdlog::set_formatter(formatter->clone());
 
   if (argc <= 1) {
-    spdlog::error("No arguments given");
+    spdlog::error(haru::Error(haru::Error::InputError, "No arguments provided"));
     spdlog::info("{:s}", haru::ArgsParser::help_string());
     return EXIT_FAILURE;
   }
