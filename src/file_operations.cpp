@@ -47,7 +47,7 @@ cpp::result<void, Error> write_cmake_lists(const std::filesystem::path& workpath
   std::ofstream output(filepath);
   output << contents;
   if (output.fail() || output.bad())
-    return cpp::fail(Error(Error::Write, "Failed writing CMakeLists.txt"));
+    return cpp::fail(Error(Error::WriteError, "Failed writing CMakeLists.txt"));
 
   spdlog::info("Wrote {}", filepath.string());
   return {};
@@ -83,7 +83,7 @@ cpp::result<void, Error> write_entry_point(const std::filesystem::path& workpath
   output << "}";
 
   if (output.fail() || output.bad())
-    return cpp::fail(Error(Error::Write, fmt::format("Failed writing {:s}", full_path.string())));
+    return cpp::fail(Error(Error::WriteError, fmt::format("Failed writing {:s}", full_path.string())));
 
   spdlog::info("Wrote {:s}", full_path.string());
   return {};
@@ -97,7 +97,7 @@ cpp::result<void, Error> write_default_files(const std::filesystem::path& workpa
     for (size_t i = 0; i < bake_in_clang_format_len; i++)
       output << static_cast<char>(bake_in_clang_format[i]);
     if (output.bad() || output.fail())
-      return cpp::fail(Error(Error::Write, "Failed writing .clang-format"));
+      return cpp::fail(Error(Error::WriteError, "Failed writing .clang-format"));
     spdlog::info("Wrote {:s}", filepath.string());
   }
   if (default_files & DefaultFiles::cmake_format) {
@@ -107,7 +107,7 @@ cpp::result<void, Error> write_default_files(const std::filesystem::path& workpa
     for (size_t i = 0; i < bake_in_cmake_format_len; i++)
       output << static_cast<char>(bake_in_cmake_format[i]);
     if (output.bad() || output.fail())
-      return cpp::fail(Error(Error::Write, "Failed writing .cmake_format.py"));
+      return cpp::fail(Error(Error::WriteError, "Failed writing .cmake_format.py"));
     spdlog::info("Wrote {:s}", filepath.string());
   }
   if (default_files & DefaultFiles::gitignore) {
@@ -117,7 +117,7 @@ cpp::result<void, Error> write_default_files(const std::filesystem::path& workpa
     for (size_t i = 0; i < bake_in_gitignore_len; i++)
       output << static_cast<char>(bake_in_gitignore[i]);
     if (output.bad() || output.fail())
-      return cpp::fail(Error(Error::Write, "Failed writing .gitignore"));
+      return cpp::fail(Error(Error::WriteError, "Failed writing .gitignore"));
     spdlog::info("Wrote {:s}", filepath.string());
   }
   return {};

@@ -44,7 +44,7 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
       spdlog::info(HARU_VERSION);
       return Command::noop();
     }
-    return cpp::fail(Error(Error::Unknown, e.what()));
+    return cpp::fail(Error(Error::UnknownError, e.what()));
   }
 
   if (s_flags[0]) {
@@ -68,6 +68,6 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
     return Command{.type = Command::Init, .flags = flags};
   }
 
-  return cpp::fail(Error(Error::Unknown));
+  return cpp::fail(Error(Error::UnknownError));
 }
 }// namespace haru

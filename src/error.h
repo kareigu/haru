@@ -14,19 +14,19 @@ public:
   enum class Type : TypeAsInt {
     NoInput,
     InputError,
-    Write,
+    WriteError,
     AlreadyExists,
     IOError,
-    Generate,
-    Unknown = TypeMaxValue,
+    GenerateError,
+    UnknownError = TypeMaxValue,
   };
   using Type::AlreadyExists;
-  using Type::Generate;
+  using Type::GenerateError;
   using Type::InputError;
   using Type::IOError;
   using Type::NoInput;
-  using Type::Unknown;
-  using Type::Write;
+  using Type::UnknownError;
+  using Type::WriteError;
 
   Error(Type type) : m_type(type) {}
   Error(Type type, std::string message) : m_type(type), m_message(message) {}
@@ -40,7 +40,7 @@ public:
 
 
 private:
-  Type m_type = Unknown;
+  Type m_type = UnknownError;
   std::optional<std::string> m_message = {};
 
   static const char** s_type_as_string;

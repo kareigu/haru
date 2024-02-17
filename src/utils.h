@@ -71,7 +71,7 @@ empty_defaults:
 
   std::string valid_values_formatted;
   if (valid_values.empty())
-    return cpp::fail(Error(Error::Unknown, "Implementation error, missing valid values"));
+    return cpp::fail(Error(Error::UnknownError, "Implementation error, missing valid values"));
 
   {
     std::ostringstream ss;
