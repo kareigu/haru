@@ -12,6 +12,7 @@ add_compile_definitions(HARU_VERSION="${PROJECT_VERSION}")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     add_compile_options(-diagnostics-color=always)
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -117,6 +118,27 @@ target_link_libraries(
   Result
   args
 )
+
+#
+# clang-tidy
+#
+find_program(CLANG_TIDY
+  clang-tidy
+  NO_CACHE
+  DOC "clang-tidy is required for the static analysis stage"
+)
+if(CLANG_TIDY)
+  file(GLOB_RECURSE CLANG_TIDY_SOURCES "src/*.cpp" "src/*.h")
+  add_custom_target(
+    tidy
+    COMMAND ${CMAKE_COMMAND} -E env "${CLANG_TIDY}" "-p" "${CMAKE_CURRENT_BINARY_DIR}" ${CLANG_TIDY_SOURCES}
+    USES_TERMINAL
+    DEPENDS ${PROJECT_NAME}
+  )
+endif()
+#
+# end: clang-tidy
+#
 
 if(NINJA_MULTICONFIG)
   set(OUTPUT_FILE_PATH "./Debug/${PROJECT_NAME}")
