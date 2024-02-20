@@ -2,6 +2,7 @@
 #include "command.h"
 #include "error.h"
 #include <args.hxx>
+#include <array>
 #include <result.hpp>
 
 namespace haru {

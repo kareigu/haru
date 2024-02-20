@@ -70,8 +70,8 @@ set(PROJECT_SOURCES
 # Bake configuration files into binary
 #
 find_program(XXD_CMD xxd)
-if(XXD_CMD STREQUAL "")
-  message(FATAL_ERROR "xxd needs to be intalled and available in path.")
+if(XXD_CMD EQUAL XXD_CMD-NOTFOUND)
+  message(FATAL_ERROR "xxd needs to be intalled and available in your path.")
 endif()
 set(BAKE_IN
     "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
