@@ -9,24 +9,24 @@ namespace haru {
 class Error {
 public:
   using TypeAsInt = uint8_t;
-  const static auto TypeMaxValue = std::numeric_limits<TypeAsInt>::max();
+  const static auto TYPE_MAX_VALUE = std::numeric_limits<TypeAsInt>::max();
 
   enum class Type : TypeAsInt {
-    NoInput,
-    InputError,
-    WriteError,
-    AlreadyExists,
-    IOError,
-    GenerateError,
-    UnknownError = TypeMaxValue,
+    NO_INPUT,
+    INPUT_ERROR,
+    WRITE_ERROR,
+    ALREADY_EXISTS,
+    IO_ERROR,
+    GENERATE_ERROR,
+    UNKNOWN_ERROR = TYPE_MAX_VALUE,
   };
-  using Type::AlreadyExists;
-  using Type::GenerateError;
-  using Type::InputError;
-  using Type::IOError;
-  using Type::NoInput;
-  using Type::UnknownError;
-  using Type::WriteError;
+  using Type::ALREADY_EXISTS;
+  using Type::GENERATE_ERROR;
+  using Type::INPUT_ERROR;
+  using Type::IO_ERROR;
+  using Type::NO_INPUT;
+  using Type::UNKNOWN_ERROR;
+  using Type::WRITE_ERROR;
 
   Error(Type type) : m_type(type) {}
   Error(Type type, std::string message) : m_type(type), m_message(message) {}
@@ -40,7 +40,7 @@ public:
 
 
 private:
-  Type m_type = UnknownError;
+  Type m_type = UNKNOWN_ERROR;
   std::optional<std::string> m_message = {};
 
   static const char** s_type_as_string;
@@ -70,7 +70,7 @@ struct fmt::formatter<haru::Error> {
     if (error.message()) {
       const std::string& message = error.message().value();
       return format_to(ctx.out(), "[{}]{}", error.type(), message);
-    } else
-      return format_to(ctx.out(), "[{}]", error.type());
+    }
+    return format_to(ctx.out(), "[{}]", error.type());
   }
 };

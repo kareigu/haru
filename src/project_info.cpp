@@ -1,16 +1,24 @@
 #include "project_info.h"
+#include "command.h"
 #include "defaults.h"
+#include "error.h"
 #include "log.h"
 #include "utils.h"
+#include <cstddef>
+#include <fmt/core.h>
+#include <optional>
+#include <result.hpp>
 #include <sstream>
+#include <string>
+#include <vector>
 
 namespace haru {
 cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info);
 
 cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name) {
   ProjectInfo project_info;
-  auto default_std_versions = DEFAULT_STD_VERSIONS();
-  if (flags & Command::Flags::UseDefaults) {
+  auto default_std_versions = DEFAULT_STD_VERSIONS;
+  if (flags & Command::Flags::USE_DEFAULTS) {
     auto default_dependencies = DEFAULT_DEPENDENCIES();
     if (default_name.has_value())
       project_info.name = default_name.value();
@@ -18,7 +26,7 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
       project_info.name = TRY(prompt<std::string>("Project name"));
     project_info.cmake_version = DEFAULT_CMAKE_VERSION;
     project_info.version = DEFAULT_VERSION;
-    project_info.languages = Language::cpp;
+    project_info.languages = Language::CPP;
     project_info.standard[0] = default_std_versions[0];
     project_info.standard[1] = default_std_versions[1];
     project_info.entry_point = fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT);
@@ -32,43 +40,43 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
 
   std::vector<std::string> input_languages = TRY(prompt_list<std::string>(
           "Languages",
-          std::vector<std::string>{Language::to_string(Language::cpp), Language::to_string(Language::c)},
-          std::vector<std::string>{Language::to_string(Language::cpp)}));
+          std::vector<std::string>{Language::to_string(Language::CPP), Language::to_string(Language::C)},
+          std::vector<std::string>{Language::to_string(Language::CPP)}));
   for (const auto& language : input_languages) {
-    if (language == Language::to_string(Language::cpp)) {
-      project_info.languages |= Language::cpp;
+    if (language == Language::to_string(Language::CPP)) {
+      project_info.languages |= Language::CPP;
       std::string standard = TRY(prompt<std::string>("C++-standard", default_std_versions[0]));
       project_info.standard[0] = standard;
     }
-    if (language == Language::to_string(Language::c)) {
-      project_info.languages |= Language::c;
+    if (language == Language::to_string(Language::C)) {
+      project_info.languages |= Language::C;
       std::string standard = TRY(prompt<std::string>("C-standard", default_std_versions[1]));
       project_info.standard[1] = standard;
     }
   }
-  if (project_info.languages == Language::none)
-    return cpp::fail(Error(Error::InputError, "You need select at least 1 valid language"));
+  if (project_info.languages == Language::NONE)
+    return cpp::fail(Error(Error::INPUT_ERROR, "You need select at least 1 valid language"));
 
-  std::string default_entry_point = project_info.languages & Language::cpp ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT) : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
+  std::string default_entry_point = project_info.languages & Language::CPP ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT) : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
   project_info.entry_point = TRY(prompt<std::string>("Entrypoint", default_entry_point));
 
   std::vector<std::string> default_files = {
-          DefaultFiles::to_string(DefaultFiles::clang_format),
-          DefaultFiles::to_string(DefaultFiles::cmake_format),
-          DefaultFiles::to_string(DefaultFiles::gitignore),
+          DefaultFiles::to_string(DefaultFiles::CLANG_FORMAT),
+          DefaultFiles::to_string(DefaultFiles::CMAKE_FORMAT),
+          DefaultFiles::to_string(DefaultFiles::GITIGNORE),
   };
   std::vector<std::string> input_default_files = TRY(prompt_list<std::string>("Default files", default_files, default_files));
   for (const auto& file : input_default_files) {
-    if (file == DefaultFiles::to_string(DefaultFiles::clang_format)) {
-      project_info.default_files |= DefaultFiles::clang_format;
+    if (file == DefaultFiles::to_string(DefaultFiles::CLANG_FORMAT)) {
+      project_info.default_files |= DefaultFiles::CLANG_FORMAT;
       continue;
     }
-    if (file == DefaultFiles::to_string(DefaultFiles::cmake_format)) {
-      project_info.default_files |= DefaultFiles::cmake_format;
+    if (file == DefaultFiles::to_string(DefaultFiles::CMAKE_FORMAT)) {
+      project_info.default_files |= DefaultFiles::CMAKE_FORMAT;
       continue;
     }
-    if (file == DefaultFiles::to_string(DefaultFiles::gitignore)) {
-      project_info.default_files |= DefaultFiles::gitignore;
+    if (file == DefaultFiles::to_string(DefaultFiles::GITIGNORE)) {
+      project_info.default_files |= DefaultFiles::GITIGNORE;
       continue;
     }
   }
@@ -118,7 +126,7 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
     else if (source_string == "local" || source_string == "LOCAL" || source_string == "Local")
       source = Dependency::Source::LOCAL;
     else
-      return cpp::fail(Error(Error::InputError, "must be git or local"));
+      return cpp::fail(Error(Error::INPUT_ERROR, "must be git or local"));
 
     dependency.source = source;
 
@@ -149,16 +157,16 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
 }
 
 std::string DefaultFiles::to_string(DefaultFiles_t files) {
-  if (files == none)
+  if (files == NONE)
     return "none";
   std::ostringstream ss;
-  if (files & clang_format)
+  if (files & CLANG_FORMAT)
     ss << "clang_format, ";
 
-  if (files & cmake_format)
+  if (files & CMAKE_FORMAT)
     ss << "cmake_format, ";
 
-  if (files & gitignore)
+  if (files & GITIGNORE)
     ss << "gitignore, ";
 
   std::string str = ss.str();

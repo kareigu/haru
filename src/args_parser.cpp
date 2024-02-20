@@ -1,8 +1,12 @@
 #include "args_parser.h"
+#include "command.h"
 #include "common.h"
+#include "error.h"
 #include "log.h"
 #include <args.hxx>
+#include <array>
 #include <cstddef>
+#include <result.hpp>
 
 
 namespace haru {
@@ -15,21 +19,21 @@ std::array<args::Command, 2> ArgsParser::s_commands = {
         args::Command(ArgsParser::s_commands_group, "init", "Initialise a project in the current directory"),
 };
 enum CommandIndex : size_t {
-  Create,
-  Init,
+  CREATE,
+  INIT,
 };
 
 std::array<args::Flag, 4> ArgsParser::s_flags = {
         args::Flag(ArgsParser::s_parser, "version", "version", {'v', "version"}),
-        args::Flag(ArgsParser::s_commands[CommandIndex::Create], "use-defaults", "Use default values", {'d', "use-defaults"}),
-        args::Flag(ArgsParser::s_commands[CommandIndex::Init], "use-defaults", "Use default values", {'d', "use-defaults"}),
-        args::Flag(ArgsParser::s_commands[CommandIndex::Create], "force", "Force new directory creation", {'f', "force"}),
+        args::Flag(ArgsParser::s_commands[CommandIndex::CREATE], "use-defaults", "Use default values", {'d', "use-defaults"}),
+        args::Flag(ArgsParser::s_commands[CommandIndex::INIT], "use-defaults", "Use default values", {'d', "use-defaults"}),
+        args::Flag(ArgsParser::s_commands[CommandIndex::CREATE], "force", "Force new directory creation", {'f', "force"}),
 };
 
 std::array<args::HelpFlag, 3> ArgsParser::s_help_flags = {
         args::HelpFlag(ArgsParser::s_parser, "help", "help", {'h', "help"}),
-        args::HelpFlag(ArgsParser::s_commands[CommandIndex::Create], "help", "help", {'h', "help"}),
-        args::HelpFlag(ArgsParser::s_commands[CommandIndex::Init], "help", "help", {'h', "help"}),
+        args::HelpFlag(ArgsParser::s_commands[CommandIndex::CREATE], "help", "help", {'h', "help"}),
+        args::HelpFlag(ArgsParser::s_commands[CommandIndex::INIT], "help", "help", {'h', "help"}),
 };
 
 
@@ -44,7 +48,7 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
       log::info(HARU_VERSION);
       return Command::noop();
     }
-    return cpp::fail(Error(Error::UnknownError, e.what()));
+    return cpp::fail(Error(Error::UNKNOWN_ERROR, e.what()));
   }
 
   if (s_flags[0]) {
@@ -52,22 +56,22 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
     return Command::noop();
   }
 
-  if (s_commands[CommandIndex::Create]) {
-    Command::Flags_t flags = Command::Flags::None;
+  if (s_commands[CommandIndex::CREATE]) {
+    Command::Flags_t flags = Command::Flags::NONE;
     if (s_flags[1])
-      flags |= Command::Flags::UseDefaults;
+      flags |= Command::Flags::USE_DEFAULTS;
     if (s_flags[3])
-      flags |= Command::Flags::Force;
-    return Command{.type = Command::Create, .flags = flags};
+      flags |= Command::Flags::FORCE;
+    return Command{.type = Command::CREATE, .flags = flags};
   }
 
-  if (s_commands[CommandIndex::Init]) {
-    Command::Flags_t flags = Command::Flags::None;
+  if (s_commands[CommandIndex::INIT]) {
+    Command::Flags_t flags = Command::Flags::NONE;
     if (s_flags[2])
-      flags |= Command::Flags::UseDefaults;
-    return Command{.type = Command::Init, .flags = flags};
+      flags |= Command::Flags::USE_DEFAULTS;
+    return Command{.type = Command::INIT, .flags = flags};
   }
 
-  return cpp::fail(Error(Error::UnknownError));
+  return cpp::fail(Error(Error::UNKNOWN_ERROR));
 }
 }// namespace haru

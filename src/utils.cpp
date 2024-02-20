@@ -1,5 +1,10 @@
 #include "utils.h"
+#include "error.h"
+#include <fmt/core.h>
+#include <iostream>
 #include <ranges>
+#include <result.hpp>
+#include <string>
 
 namespace haru {
 cpp::result<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line) {
@@ -23,6 +28,6 @@ cpp::result<bool, Error> prompt_yes_no(const char* text, bool default_value, boo
   if (value_input == "N" || value_input == "n" || value_input == "no" || value_input == "NO" || value_input == "No")
     return false;
 
-  return cpp::fail(Error(Error::InputError, "Only y/n/<empty> are allowed"));
+  return cpp::fail(Error(Error::INPUT_ERROR, "Only y/n/<empty> are allowed"));
 }
 }// namespace haru

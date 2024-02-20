@@ -3,6 +3,7 @@
 #include "project_info.h"
 #include <filesystem>
 #include <result.hpp>
+#include <string>
 
 namespace haru {
 cpp::result<std::filesystem::path, Error> create_work_directory(bool init, const std::string& name, bool overwrite);

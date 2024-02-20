@@ -9,15 +9,17 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fmt/core.h>
+#include <optional>
+#include <string>
 
 
 int main(int argc, char** argv) {
 #ifndef NDEBUG
-  haru::log::set_level(haru::log::Level::Debug);
+  haru::log::set_level(haru::log::Level::DEBUG);
 #endif
 
   if (argc <= 1) {
-    haru::log::error(haru::Error(haru::Error::InputError, "No arguments provided"));
+    haru::log::error(haru::Error(haru::Error::INPUT_ERROR, "No arguments provided"));
     haru::log::info("{:s}", haru::ArgsParser::help_string());
     return EXIT_FAILURE;
   }
@@ -32,8 +34,8 @@ int main(int argc, char** argv) {
   auto ran_command = parse_ret.value();
 
 
-  if (ran_command.type == haru::Command::Create || ran_command.type == haru::Command::Init) {
-    bool init = ran_command.type == haru::Command::Init;
+  if (ran_command.type == haru::Command::CREATE || ran_command.type == haru::Command::INIT) {
+    bool init = ran_command.type == haru::Command::INIT;
     std::optional<std::string> default_name = {};
     if (init) {
       default_name = std::filesystem::current_path().filename().string();
@@ -43,7 +45,7 @@ int main(int argc, char** argv) {
     haru::CMakeListsGenerator cmake_generator(project_info);
     std::string cmake_lists_contents = MUST(cmake_generator.generate());
 
-    std::filesystem::path workpath = MUST(haru::create_work_directory(init, project_info.name, ran_command.flags & haru::Command::Flags::Force));
+    std::filesystem::path workpath = MUST(haru::create_work_directory(init, project_info.name, ran_command.flags & haru::Command::Flags::FORCE));
     MUST(haru::write_cmake_lists(workpath, cmake_lists_contents));
     MUST(haru::write_entry_point(workpath, project_info.entry_point, project_info.languages));
     MUST(haru::write_default_files(workpath, project_info.default_files));

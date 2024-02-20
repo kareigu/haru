@@ -1,5 +1,6 @@
 #pragma once
 #include "error.h"
+#include <cstdio>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <utility>
@@ -7,10 +8,10 @@
 namespace haru {
 namespace log {
   enum class Level {
-    Error,
-    Warn,
-    Info,
-    Debug,
+    ERROR,
+    WARN,
+    INFO,
+    DEBUG,
   };
 
   namespace {
@@ -24,14 +25,14 @@ namespace log {
 
   template<typename... T>
   constexpr void info(fmt::format_string<T...> format_string, T&&... args) {
-    if (ltoi(level()) < ltoi(Level::Info))
+    if (ltoi(level()) < ltoi(Level::INFO))
       return;
     fmt::println(stdout, format_string, std::forward<T>(args)...);
   }
 
   template<typename... T>
   constexpr void warn(fmt::format_string<T...> format_string, T&&... args) {
-    if (ltoi(level()) < ltoi(Level::Warn))
+    if (ltoi(level()) < ltoi(Level::WARN))
       return;
     fmt::print(stderr, fmt::emphasis::bold | fmt::fg(fmt::color::orange), "[warn] ");
     fmt::println(format_string, std::forward<T>(args)...);
@@ -41,15 +42,15 @@ namespace log {
 
   template<typename... T>
   constexpr void error(fmt::format_string<T...> format_string, T&&... args) {
-    if (ltoi(level()) < ltoi(Level::Error))
+    if (ltoi(level()) < ltoi(Level::ERROR))
       return;
-    Error err(Error::UnknownError, fmt::format(format_string, std::forward<T>(args)...));
+    Error err(Error::UNKNOWN_ERROR, fmt::format(format_string, std::forward<T>(args)...));
     error(err);
   }
 
   template<typename... T>
   constexpr void debug(fmt::format_string<T...> format_string, T&&... args) {
-    if (ltoi(level()) < ltoi(Level::Debug))
+    if (ltoi(level()) < ltoi(Level::DEBUG))
       return;
     fmt::print(stderr, fmt::emphasis::bold | fmt::fg(fmt::color::yellow), "[debug] ");
     fmt::println(format_string, std::forward<T>(args)...);

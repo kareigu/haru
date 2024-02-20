@@ -1,6 +1,10 @@
 #include "cmake_lists_generator.h"
+#include "error.h"
+#include "project_info.h"
 #include <fmt/core.h>
+#include <result.hpp>
 #include <sstream>
+#include <string>
 
 namespace haru {
 CMakeListsGenerator::CMakeListsGenerator(const ProjectInfo& project_info) : m_project_info(project_info) {}
@@ -23,17 +27,17 @@ cpp::result<std::string, Error> CMakeListsGenerator::generate() {
     output << "\ninclude(FetchContent)\n";
 
   output << fmt::format("\nproject(\n  {:s}\n  VERSION {:s}\n  LANGUAGES ", m_project_info.name, m_project_info.version);
-  if (m_project_info.languages & Language::cpp)
+  if (m_project_info.languages & Language::CPP)
     output << "CXX ";
-  if (m_project_info.languages & Language::c)
+  if (m_project_info.languages & Language::C)
     output << "C";
   output << "\n)\n";
 
-  if (m_project_info.languages & Language::cpp) {
+  if (m_project_info.languages & Language::CPP) {
     output << fmt::format("\nset(CMAKE_CXX_STANDARD {:s})\n", m_project_info.standard[0]);
     output << "set(CMAKE_CXX_STANDARD_REQUIRED TRUE)\n";
   }
-  if (m_project_info.languages & Language::c) {
+  if (m_project_info.languages & Language::C) {
     output << fmt::format("\nset(CMAKE_C_STANDARD {:s})\n", m_project_info.standard[1]);
     output << "set(CMAKE_C_STANDARD_REQUIRED TRUE)\n";
   }
@@ -62,7 +66,7 @@ cpp::result<std::string, Error> CMakeListsGenerator::generate() {
   output << ")\n";
 
   if (output.fail() || output.bad())
-    return cpp::fail(Error(Error::GenerateError, "Error writing generated CMakesLists.txt to buffer"));
+    return cpp::fail(Error(Error::GENERATE_ERROR, "Error writing generated CMakesLists.txt to buffer"));
 
 
   return output.str();

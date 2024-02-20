@@ -1,11 +1,13 @@
 #pragma once
 #include "error.h"
-#include <fmt/core.h>
+#include <cstdlib>
+// NOLINTNEXTLINE(misc-include-cleaner): Wrong
 #include <iostream>
 #include <optional>
 #include <result.hpp>
+// NOLINTNEXTLINE(misc-include-cleaner): Wrong
 #include <sstream>
-#include <string>
+#include <vector>
 
 #define TRY(EXPR) ({                     \
   auto&& _temp_ret = (EXPR);             \
@@ -43,7 +45,7 @@ cpp::result<T, Error> prompt(const char* text, std::optional<T> default_value = 
   std::getline(std::cin, value_input);
   std::istringstream ss(value_input);
   if (!default_value.has_value() && value_input.empty())
-    return cpp::fail(Error(Error::Type::NoInput, fmt::format("{} needs to be given", text)));
+    return cpp::fail(Error(Error::Type::NO_INPUT, fmt::format("{} needs to be given", text)));
 
   if (default_value.has_value() && value_input.empty())
     return default_value.value();
@@ -70,7 +72,7 @@ empty_defaults:
 
   std::string valid_values_formatted;
   if (valid_values.empty())
-    return cpp::fail(Error(Error::UnknownError, "Implementation error, missing valid values"));
+    return cpp::fail(Error(Error::UNKNOWN_ERROR, "Implementation error, missing valid values"));
 
   {
     std::ostringstream ss;
@@ -90,7 +92,7 @@ empty_defaults:
 
 
   if (!default_values.has_value() && value_input.empty())
-    return cpp::fail(Error(Error::Type::NoInput, fmt::format("{} needs to be given", text)));
+    return cpp::fail(Error(Error::Type::NO_INPUT, fmt::format("{} needs to be given", text)));
 
   if (default_values.has_value() && value_input.empty())
     return default_values.value();
@@ -118,7 +120,7 @@ empty_defaults:
     T value;
     input >> value;
     if (input.bad() || input.fail())
-      return cpp::fail(Error(Error::InputError, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
+      return cpp::fail(Error(Error::INPUT_ERROR, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
 
     bool invalid = true;
     for (const auto& valid_value : valid_values) {
@@ -128,7 +130,7 @@ empty_defaults:
       }
     }
     if (invalid)
-      return cpp::fail(Error(Error::InputError, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
+      return cpp::fail(Error(Error::INPUT_ERROR, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
 
 
     ret[i] = std::move(value);

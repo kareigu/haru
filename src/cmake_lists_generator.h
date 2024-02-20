@@ -1,9 +1,9 @@
 #pragma once
-
-
 #include "error.h"
 #include "project_info.h"
-#include "result.hpp"
+#include <result.hpp>
+#include <string>
+
 namespace haru {
 class CMakeListsGenerator {
 public:

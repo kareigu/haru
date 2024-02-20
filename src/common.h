@@ -1,5 +1,4 @@
 #pragma once
-#include <fmt/core.h>
 
 #ifndef HARU_PRG_NAME
   #error Missing HARU_PRG_NAME

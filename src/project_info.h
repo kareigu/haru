@@ -2,6 +2,7 @@
 #include "command.h"
 #include "error.h"
 #include <array>
+#include <cstdint>
 #include <fmt/core.h>
 #include <optional>
 #include <result.hpp>
@@ -24,20 +25,20 @@ struct Dependency {
 
 using Language_t = uint8_t;
 namespace Language {
-  constexpr Language_t none = 0;
-  constexpr Language_t cpp = 1;
-  constexpr Language_t c = 2;
-  constexpr Language_t both = cpp | c;
+  constexpr Language_t NONE = 0;
+  constexpr Language_t CPP = 1;
+  constexpr Language_t C = 2;
+  constexpr Language_t BOTH = CPP | C;
 
 
   constexpr const char* to_string(Language_t language) {
-    if (language == Language::both)
+    if (language == Language::BOTH)
       return "cpp, c";
 
-    if (language & Language::cpp)
+    if (language & Language::CPP)
       return "cpp";
 
-    if (language & Language::c)
+    if (language & Language::C)
       return "c";
 
     return "Unsupported";
@@ -46,11 +47,11 @@ namespace Language {
 
 using DefaultFiles_t = uint8_t;
 namespace DefaultFiles {
-  constexpr DefaultFiles_t none = 0;
-  constexpr DefaultFiles_t clang_format = 1;
-  constexpr DefaultFiles_t cmake_format = 2;
-  constexpr DefaultFiles_t gitignore = 4;
-  constexpr DefaultFiles_t all = clang_format | cmake_format | gitignore;
+  constexpr DefaultFiles_t NONE = 0;
+  constexpr DefaultFiles_t CLANG_FORMAT = 1;
+  constexpr DefaultFiles_t CMAKE_FORMAT = 2;
+  constexpr DefaultFiles_t GITIGNORE = 4;
+  constexpr DefaultFiles_t ALL = CLANG_FORMAT | CMAKE_FORMAT | GITIGNORE;
 
   std::string to_string(DefaultFiles_t files);
 }// namespace DefaultFiles
@@ -62,7 +63,7 @@ struct ProjectInfo {
   Language_t languages = 0;
   std::array<std::string, 2> standard{};
   std::string entry_point;
-  DefaultFiles_t default_files = DefaultFiles::none;
+  DefaultFiles_t default_files = DefaultFiles::NONE;
   std::vector<Dependency> dependencies;
 
   static cpp::result<ProjectInfo, Error> parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name = {});
@@ -116,9 +117,9 @@ struct fmt::formatter<haru::ProjectInfo> {
     fmt::format_to(ctx.out(), "name = \"{:s}\"\n", info.name);
     fmt::format_to(ctx.out(), "version = {:s}\n", info.version);
     fmt::format_to(ctx.out(), "languages = {:s}\n", haru::Language::to_string(info.languages));
-    if (info.languages & haru::Language::cpp)
+    if (info.languages & haru::Language::CPP)
       fmt::format_to(ctx.out(), "C++-standard = {:s}\n", info.standard[0]);
-    if (info.languages & haru::Language::c)
+    if (info.languages & haru::Language::C)
       fmt::format_to(ctx.out(), "C-standard = {:s}\n", info.standard[1]);
     fmt::format_to(ctx.out(), "entry_point = {:s}\n", info.entry_point);
     fmt::format_to(ctx.out(), "default_files = {:s}\n", haru::DefaultFiles::to_string(info.default_files));
