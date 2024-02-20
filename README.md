@@ -58,3 +58,4 @@ For building requirements are:
 - C++23 compatible compiler. Clang recommended
 - `cmake` >= `3.28`
 - `xxd` is needed to generate cpp files from the default configuration files in [assets/](assets/)
+  - On Windows [ckormanyos/xxd](https://github.com/ckormanyos/xxd) can be used for this purpose.
