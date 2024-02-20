@@ -4,7 +4,6 @@
 #include <iostream>
 #include <optional>
 #include <result.hpp>
-#include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
 
@@ -15,13 +14,13 @@
   _temp_ret.value();                     \
 })
 
-#define MUST(EXPR) ({                 \
-  auto&& _temp_ret = (EXPR);          \
-  if (_temp_ret.has_error()) {        \
-    spdlog::error(_temp_ret.error()); \
-    std::exit(EXIT_FAILURE);          \
-  }                                   \
-  _temp_ret.value();                  \
+#define MUST(EXPR) ({                    \
+  auto&& _temp_ret = (EXPR);             \
+  if (_temp_ret.has_error()) {           \
+    haru::log::error(_temp_ret.error()); \
+    std::exit(EXIT_FAILURE);             \
+  }                                      \
+  _temp_ret.value();                     \
 })
 
 namespace haru {

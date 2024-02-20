@@ -1,5 +1,6 @@
 #include "project_info.h"
 #include "defaults.h"
+#include "log.h"
 #include "utils.h"
 #include <sstream>
 
@@ -77,7 +78,7 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
     TRY(handle_adding_dependencies(project_info));
   }
 
-  spdlog::info("\nCurrent settings:\n{}", project_info);
+  log::info("\nCurrent settings:\n{}", project_info);
   bool proceed = TRY(prompt_yes_no("Proceed?", true));
   if (!proceed)
     return ProjectInfo::parse_from_input(flags, default_name);
@@ -100,7 +101,7 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
           DEFAULT_ADD_DEPENDENCIES));
 
   if (add_defaults) {
-    spdlog::info("Adding defaul dependencies");
+    log::info("Adding defaul dependencies");
     project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
   }
 

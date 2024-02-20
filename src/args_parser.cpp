@@ -1,8 +1,8 @@
 #include "args_parser.h"
 #include "args.hxx"
 #include "common.h"
+#include "log.h"
 #include <cstddef>
-#include <spdlog/spdlog.h>
 
 
 namespace haru {
@@ -37,18 +37,18 @@ cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
   try {
     s_parser.ParseCLI(argc, argv);
   } catch (const args::Help& e) {
-    spdlog::info("{}", help_string());
+    log::info("{}", help_string());
     return Command::noop();
   } catch (const args::Error& e) {
     if (s_flags[0]) {
-      spdlog::info(HARU_VERSION);
+      log::info(HARU_VERSION);
       return Command::noop();
     }
     return cpp::fail(Error(Error::UnknownError, e.what()));
   }
 
   if (s_flags[0]) {
-    spdlog::info(HARU_VERSION);
+    log::info(HARU_VERSION);
     return Command::noop();
   }
 

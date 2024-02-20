@@ -3,36 +3,29 @@
 #include "command.h"
 #include "error.h"
 #include "file_operations.h"
-#include "log_formatter.h"
+#include "log.h"
 #include "project_info.h"
 #include "utils.h"
 #include <cstdlib>
 #include <filesystem>
 #include <fmt/core.h>
-#include <memory>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
 
 int main(int argc, char** argv) {
 #ifndef NDEBUG
-  spdlog::set_level(spdlog::level::debug);
+  haru::log::set_level(haru::log::Level::Debug);
 #endif
-  auto logger = spdlog::dual_color_mt("log");
-  auto formatter = std::make_unique<haru::LogFormatter>();
-  spdlog::set_default_logger(logger);
-  spdlog::set_formatter(formatter->clone());
 
   if (argc <= 1) {
-    spdlog::error(haru::Error(haru::Error::InputError, "No arguments provided"));
-    spdlog::info("{:s}", haru::ArgsParser::help_string());
+    haru::log::error(haru::Error(haru::Error::InputError, "No arguments provided"));
+    haru::log::info("{:s}", haru::ArgsParser::help_string());
     return EXIT_FAILURE;
   }
 
   auto parse_ret = haru::ArgsParser::parse(argc, argv);
   if (parse_ret.has_error()) {
-    spdlog::error("{}", parse_ret.error());
-    spdlog::info("{:s}", haru::ArgsParser::help_string());
+    haru::log::error(parse_ret.error());
+    haru::log::info("{:s}", haru::ArgsParser::help_string());
     return EXIT_FAILURE;
   }
 

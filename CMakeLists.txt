@@ -26,16 +26,6 @@ fetchcontent_declare(
 )
 fetchcontent_makeavailable(fmt)
 
-set(SPDLOG_FMT_EXTERNAL TRUE)
-fetchcontent_declare(
-  spdlog
-  GIT_REPOSITORY https://github.com/kareigu/spdlog.git
-  GIT_TAG easier_dual_sink
-  GIT_PROGRESS TRUE
-  USES_TERMINAL_DOWNLOAD TRUE
-)
-fetchcontent_makeavailable(spdlog)
-
 fetchcontent_declare(
   Result
   GIT_REPOSITORY https://github.com/bitwizeshift/result.git
@@ -57,7 +47,6 @@ fetchcontent_makeavailable(args)
 
 set(PROJECT_SOURCES
     src/main.cpp
-    src/log_formatter.cpp
     src/project_info.cpp
     src/args_parser.cpp
     src/error.cpp
@@ -65,6 +54,7 @@ set(PROJECT_SOURCES
     src/utils.cpp
     src/cmake_lists_generator.cpp
     src/file_operations.cpp
+    src/log.cpp
 )
 
 #
@@ -111,7 +101,6 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${BAKE_IN})
 target_link_libraries(
   ${PROJECT_NAME}
   fmt
-  spdlog
   Result
   args
 )

@@ -1,9 +1,9 @@
 #include "file_operations.h"
 #include "bake_in.h"
+#include "log.h"
 #include "utils.h"
 #include <filesystem>
 #include <fstream>
-#include <spdlog/spdlog.h>
 #include <system_error>
 
 namespace haru {
@@ -26,7 +26,7 @@ cpp::result<std::filesystem::path, Error> create_work_directory(bool init, const
     if (!std::filesystem::create_directory(workpath)) {
       return cpp::fail(Error(Error::IOError, fmt::format("Could not create directory at {:s}", workpath.string())));
     }
-    spdlog::info("Created project directory {:s}", workpath.string());
+    log::info("Created project directory {:s}", workpath.string());
     return workpath;
   }
 
@@ -37,7 +37,7 @@ cpp::result<std::filesystem::path, Error> create_work_directory(bool init, const
   }
 
 
-  spdlog::info("Using project directory {:s}", workpath.string());
+  log::info("Using project directory {:s}", workpath.string());
   return workpath;
 }
 
@@ -49,7 +49,7 @@ cpp::result<void, Error> write_cmake_lists(const std::filesystem::path& workpath
   if (output.fail() || output.bad())
     return cpp::fail(Error(Error::WriteError, "Failed writing CMakeLists.txt"));
 
-  spdlog::info("Wrote {}", filepath.string());
+  log::info("Wrote {}", filepath.string());
   return {};
 }
 
@@ -85,7 +85,7 @@ cpp::result<void, Error> write_entry_point(const std::filesystem::path& workpath
   if (output.fail() || output.bad())
     return cpp::fail(Error(Error::WriteError, fmt::format("Failed writing {:s}", full_path.string())));
 
-  spdlog::info("Wrote {:s}", full_path.string());
+  log::info("Wrote {:s}", full_path.string());
   return {};
 }
 
@@ -98,7 +98,7 @@ cpp::result<void, Error> write_default_files(const std::filesystem::path& workpa
       output << static_cast<char>(bake_in_clang_format[i]);
     if (output.bad() || output.fail())
       return cpp::fail(Error(Error::WriteError, "Failed writing .clang-format"));
-    spdlog::info("Wrote {:s}", filepath.string());
+    log::info("Wrote {:s}", filepath.string());
   }
   if (default_files & DefaultFiles::cmake_format) {
     auto filepath = workpath;
@@ -108,7 +108,7 @@ cpp::result<void, Error> write_default_files(const std::filesystem::path& workpa
       output << static_cast<char>(bake_in_cmake_format[i]);
     if (output.bad() || output.fail())
       return cpp::fail(Error(Error::WriteError, "Failed writing .cmake_format.py"));
-    spdlog::info("Wrote {:s}", filepath.string());
+    log::info("Wrote {:s}", filepath.string());
   }
   if (default_files & DefaultFiles::gitignore) {
     auto filepath = workpath;
@@ -118,7 +118,7 @@ cpp::result<void, Error> write_default_files(const std::filesystem::path& workpa
       output << static_cast<char>(bake_in_gitignore[i]);
     if (output.bad() || output.fail())
       return cpp::fail(Error(Error::WriteError, "Failed writing .gitignore"));
-    spdlog::info("Wrote {:s}", filepath.string());
+    log::info("Wrote {:s}", filepath.string());
   }
   return {};
 }
