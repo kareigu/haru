@@ -45,6 +45,8 @@ fetchcontent_declare(
 fetchcontent_makeavailable(Result)
 
 set(ARGPARSE_INSTALL FALSE)
+set(ARGS_BUILD_EXAMPLE FALSE)
+set(ARGS_BUILD_UNITTESTS FALSE)
 fetchcontent_declare(
   args
   GIT_REPOSITORY https://github.com/Taywee/args.git
