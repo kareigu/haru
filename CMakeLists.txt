@@ -71,10 +71,12 @@ set(PROJECT_SOURCES
 #
 # Bake configuration files into binary
 #
-find_program(XXD_CMD xxd)
-if(XXD_CMD EQUAL XXD_CMD-NOTFOUND)
-  message(FATAL_ERROR "xxd needs to be intalled and available in your path.")
-endif()
+find_program(XXD 
+  xxd
+  REQUIRED
+  NO_CACHE
+  DOC "xxd needed to generate .cpp source files for baking default configuration files into the binary"
+)
 set(BAKE_IN
     "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
     "${CMAKE_SOURCE_DIR}/generated/cmake_format.cpp"
@@ -83,7 +85,7 @@ set(BAKE_IN
 add_custom_command(
   OUTPUT "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
   COMMAND
-    ${CMAKE_COMMAND} -E env "${XXD_CMD}" "-i" "-n" "bake_in_clang_format"
+    ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_clang_format"
     "${CMAKE_SOURCE_DIR}/assets/clang-format" ">"
     "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
   DEPENDS "${CMAKE_SOURCE_DIR}/assets/clang-format"
@@ -91,7 +93,7 @@ add_custom_command(
 add_custom_command(
   OUTPUT "${CMAKE_SOURCE_DIR}/generated/cmake_format.cpp"
   COMMAND
-    ${CMAKE_COMMAND} -E env "${XXD_CMD}" "-i" "-n" "bake_in_cmake_format"
+    ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_cmake_format"
     "${CMAKE_SOURCE_DIR}/assets/cmake-format.py" ">"
     "${CMAKE_SOURCE_DIR}/generated/cmake_format.cpp"
   DEPENDS "${CMAKE_SOURCE_DIR}/assets/cmake-format.py"
@@ -99,7 +101,7 @@ add_custom_command(
 add_custom_command(
   OUTPUT "${CMAKE_SOURCE_DIR}/generated/gitignore.cpp"
   COMMAND
-    ${CMAKE_COMMAND} -E env "${XXD_CMD}" "-i" "-n" "bake_in_gitignore"
+    ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_gitignore"
     "${CMAKE_SOURCE_DIR}/assets/gitignore" ">"
     "${CMAKE_SOURCE_DIR}/generated/gitignore.cpp"
   DEPENDS "${CMAKE_SOURCE_DIR}/assets/gitignore"
