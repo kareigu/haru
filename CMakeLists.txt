@@ -4,7 +4,7 @@ include(FetchContent)
 
 project(
   haru
-  VERSION 0.1.0
+  VERSION 0.2.0
   LANGUAGES CXX
 )
 add_compile_definitions(HARU_PRG_NAME="${PROJECT_NAME}")
@@ -29,7 +29,7 @@ set(FMT_INSTALL FALSE)
 fetchcontent_declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 10.1.0
+  GIT_TAG 10.2.1
   GIT_PROGRESS TRUE
   USES_TERMINAL_DOWNLOAD TRUE
 )
