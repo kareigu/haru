@@ -1,6 +1,7 @@
 #pragma once
 #include "command.h"
 #include "error.h"
+#include <array>
 #include <fmt/core.h>
 #include <optional>
 #include <result.hpp>
@@ -59,7 +60,7 @@ struct ProjectInfo {
   std::string name;
   std::string version;
   Language_t languages = 0;
-  std::array<std::string, 2> standard;
+  std::array<std::string, 2> standard{};
   std::string entry_point;
   DefaultFiles_t default_files = DefaultFiles::none;
   std::vector<Dependency> dependencies;

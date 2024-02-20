@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     bool init = ran_command.type == haru::Command::Init;
     std::optional<std::string> default_name = {};
     if (init) {
-      default_name = std::filesystem::current_path().filename();
+      default_name = std::filesystem::current_path().filename().string();
     }
     auto project_info = MUST(haru::ProjectInfo::parse_from_input(ran_command.flags, default_name));
 
