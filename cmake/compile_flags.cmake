@@ -1,4 +1,4 @@
-function(add_project_compile_flags)
+function(add_project_compile_flags project_name)
     set(CLANG_WARNINGS
         -Wall
         -Wextra
@@ -28,17 +28,30 @@ function(add_project_compile_flags)
     )
 
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        add_compile_options(-diagnostics-color=always)
-        add_compile_options(${GCC_WARNINGS})
+        set(WARNINGS_CXX
+            -diagnostics-color=always
+            ${GCC_WARNINGS}
+        )
     elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang")
-        add_compile_options(-fcolor-diagnostics)
-        add_compile_options(${CLANG_WARNINGS})
+        set(WARNINGS_CXX
+            -fcolor-diagnostics
+            ${CLANG_WARNINGS}
+        )
     elseif(MSVC)
         message(FATAL_ERROR "Unsupported")
     endif()
 
     if(WIN32)
-        add_compile_options(-fansi-escape-codes)
+        set(WARNINGS_CXX
+            ${output}
+            -fansi-escape-codes
+        )
     endif()
+    set(WARNINGS_C ${WARNINGS_CXX})
+    target_compile_options(
+        ${project_name}
+        PRIVATE
+            $<$<COMPILE_LANGUAGE:CXX>:${WARNINGS_CXX}>
+            $<$<COMPILE_LANGUAGE:C>:${WARNINGS_C}>
+    )
 endfunction()
-

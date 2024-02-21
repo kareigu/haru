@@ -7,13 +7,6 @@ include(${CMAKE_SOURCE_DIR}/cmake/tidy.cmake)
 include(FetchContent)
 
 project(haru VERSION 0.2.0 LANGUAGES CXX)
-add_compile_definitions(HARU_PRG_NAME="${PROJECT_NAME}")
-add_compile_definitions(HARU_VERSION="${PROJECT_VERSION}")
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-
-add_project_compile_flags()
 set(NINJA_MULTICONFIG (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config"))
 
 fetch_project_dependencies()
@@ -36,6 +29,27 @@ add_executable(
     ${PROJECT_SOURCES}
     ${BAKE_IN}
 )
+
+target_compile_definitions(
+    ${PROJECT_NAME}
+    PRIVATE
+        HARU_PRG_NAME="${PROJECT_NAME}"
+)
+target_compile_definitions(
+    ${PROJECT_NAME}
+    PRIVATE
+        HARU_VERSION="${PROJECT_VERSION}"
+)
+set_target_properties(
+    ${PROJECT_NAME}
+    PROPERTIES
+        CXX_STANDARD
+            23
+        CXX_STANDARD_REQUIRED
+            TRUE
+)
+
+add_project_compile_flags(${PROJECT_NAME})
 link_project_dependencies(${PROJECT_NAME})
 
 add_clang_tidy(${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR})
@@ -77,4 +91,3 @@ if(NINJA_MULTICONFIG)
         )
     endforeach()
 endif()
-
