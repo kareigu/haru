@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.27)
 
-include(cmake/baking.cmake)
-include(cmake/compile_flags.cmake)
-include(cmake/dependencies.cmake)
-include(cmake/tidy.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/baking.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/compile_flags.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/dependencies.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/tidy.cmake)
 include(FetchContent)
 
 project(haru VERSION 0.2.0 LANGUAGES CXX)
