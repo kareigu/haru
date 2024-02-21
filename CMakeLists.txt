@@ -160,27 +160,40 @@ endif()
 #
 
 if(NINJA_MULTICONFIG)
-    set(OUTPUT_FILE_PATH "./Debug/${PROJECT_NAME}")
-else()
-    set(OUTPUT_FILE_PATH "./${PROJECT_NAME}")
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        string(TOLOWER ${CONFIG} BUILD_NAME)
+        add_custom_target(
+            "run-${BUILD_NAME}"
+            COMMAND
+                ${CMAKE_COMMAND} -E env
+                "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG}/${PROJECT_NAME}"
+            USES_TERMINAL
+            VERBATIM
+            DEPENDS
+                ${PROJECT_NAME}:$<CONFIG>
+        )
+    endforeach()
 endif()
-
 add_custom_target(
     run
     COMMAND
-        ${CMAKE_COMMAND} -E env ${OUTPUT_FILE_PATH}
+        ${CMAKE_COMMAND} -E env "$<TARGET_FILE:${PROJECT_NAME}>"
     USES_TERMINAL
     VERBATIM
     DEPENDS
-        ${PROJECT_NAME}
+        ${PROJECT_NAME}:$<CONFIG>
 )
 
 if(NINJA_MULTICONFIG)
-    add_custom_target(
-        release
-        COMMAND
-            ${CMAKE_COMMAND} -E env "ninja" "-f" "build-Release.ninja"
-        USES_TERMINAL
-    )
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        string(TOLOWER ${CONFIG} CONFIG)
+        add_custom_target(
+            ${CONFIG}
+            COMMAND
+                ${CMAKE_COMMAND} --build "${CMAKE_CURRENT_BINARY_DIR}"
+                "--config" "${CONFIG}"
+            USES_TERMINAL
+        )
+    endforeach()
 endif()
 
