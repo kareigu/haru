@@ -12,7 +12,7 @@ function(add_bake_in_files)
     )
     set(BAKE_IN
         "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
-        "${CMAKE_SOURCE_DIR}/generated/cmake_format.cpp"
+        "${CMAKE_SOURCE_DIR}/generated/gersemirc.cpp"
         "${CMAKE_SOURCE_DIR}/generated/gitignore.cpp"
     )
     add_custom_command(
@@ -27,13 +27,13 @@ function(add_bake_in_files)
     )
     add_custom_command(
         OUTPUT
-            "${CMAKE_SOURCE_DIR}/generated/cmake_format.cpp"
+            "${CMAKE_SOURCE_DIR}/generated/gersemirc.cpp"
         COMMAND
-            ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_cmake_format"
-            "${CMAKE_SOURCE_DIR}/assets/cmake-format.py" ">"
-            "${CMAKE_SOURCE_DIR}/generated/cmake_format.cpp"
+            ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_gersemirc"
+            "${CMAKE_SOURCE_DIR}/assets/gersemirc" ">"
+            "${CMAKE_SOURCE_DIR}/generated/gersemirc.cpp"
         DEPENDS
-            "${CMAKE_SOURCE_DIR}/assets/cmake-format.py"
+            "${CMAKE_SOURCE_DIR}/assets/gersemirc"
     )
     add_custom_command(
         OUTPUT

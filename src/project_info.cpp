@@ -62,7 +62,7 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
 
   std::vector<std::string> default_files = {
           DefaultFiles::to_string(DefaultFiles::CLANG_FORMAT),
-          DefaultFiles::to_string(DefaultFiles::CMAKE_FORMAT),
+          DefaultFiles::to_string(DefaultFiles::GERSEMIRC),
           DefaultFiles::to_string(DefaultFiles::GITIGNORE),
   };
   std::vector<std::string> input_default_files = TRY(prompt_list<std::string>("Default files", default_files, default_files));
@@ -71,8 +71,8 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
       project_info.default_files |= DefaultFiles::CLANG_FORMAT;
       continue;
     }
-    if (file == DefaultFiles::to_string(DefaultFiles::CMAKE_FORMAT)) {
-      project_info.default_files |= DefaultFiles::CMAKE_FORMAT;
+    if (file == DefaultFiles::to_string(DefaultFiles::GERSEMIRC)) {
+      project_info.default_files |= DefaultFiles::GERSEMIRC;
       continue;
     }
     if (file == DefaultFiles::to_string(DefaultFiles::GITIGNORE)) {
@@ -163,8 +163,8 @@ std::string DefaultFiles::to_string(DefaultFiles_t files) {
   if (files & CLANG_FORMAT)
     ss << "clang_format, ";
 
-  if (files & CMAKE_FORMAT)
-    ss << "cmake_format, ";
+  if (files & GERSEMIRC)
+    ss << "gersemirc, ";
 
   if (files & GITIGNORE)
     ss << "gitignore, ";

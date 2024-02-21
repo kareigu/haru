@@ -108,12 +108,12 @@ cpp::result<void, Error> write_default_files(const std::filesystem::path& workpa
   }
   if (default_files & DefaultFiles::CLANG_FORMAT) {
     auto filepath = workpath;
-    filepath += "/.cmake-format.py";
+    filepath += "/.gersemirc.py";
     std::ofstream output(filepath);
-    for (size_t i = 0; i < bake_in_cmake_format_len; i++)
-      output << static_cast<char>(bake_in_cmake_format[i]);
+    for (size_t i = 0; i < bake_in_gersemirc_len; i++)
+      output << static_cast<char>(bake_in_gersemirc[i]);
     if (output.bad() || output.fail())
-      return cpp::fail(Error(Error::WRITE_ERROR, "Failed writing .cmake_format.py"));
+      return cpp::fail(Error(Error::WRITE_ERROR, "Failed writing .gersemirc"));
     log::info("Wrote {:s}", filepath.string());
   }
   if (default_files & DefaultFiles::GITIGNORE) {
