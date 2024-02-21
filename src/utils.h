@@ -1,13 +1,15 @@
 #pragma once
 #include "error.h"
 #include <cstdlib>
-// NOLINTNEXTLINE(misc-include-cleaner): Wrong
+#include <fmt/core.h>
 #include <iostream>
 #include <optional>
 #include <result.hpp>
-// NOLINTNEXTLINE(misc-include-cleaner): Wrong
-#include <sstream>
+#include <string>
 #include <vector>
+// NOLINTBEGIN(misc-include-cleaner): Wrong
+#include <sstream>
+// NOLINTEND(misc-include-cleaner)
 
 #define TRY(EXPR) ({                     \
   auto&& _temp_ret = (EXPR);             \
