@@ -24,18 +24,17 @@ function(fetch_project_dependencies)
     fetchcontent_makeavailable(Result)
 
     set(ARGPARSE_INSTALL FALSE)
-    set(ARGS_BUILD_EXAMPLE FALSE)
-    set(ARGS_BUILD_UNITTESTS FALSE)
+    set(ARGPARSE_BUILD_TESTS FALSE)
     fetchcontent_declare(
-        args
-        GIT_REPOSITORY https://github.com/Taywee/args.git
-        GIT_TAG 6.4.6
+        argparse
+        GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+        GIT_TAG v3.0
         GIT_PROGRESS TRUE
         USES_TERMINAL_DOWNLOAD
         TRUE
         SYSTEM
     )
-    fetchcontent_makeavailable(args)
+    fetchcontent_makeavailable(argparse)
 endfunction()
 
 function(link_project_dependencies PROJECT_NAME)
@@ -43,7 +42,7 @@ function(link_project_dependencies PROJECT_NAME)
         ${PROJECT_NAME}
         fmt
         Result
-        args
+        argparse
     )
 endfunction()
 

@@ -2,76 +2,68 @@
 #include "command.h"
 #include "common.h"
 #include "error.h"
-#include "log.h"
-#include <args.hxx>
-#include <array>
-#include <cstddef>
+#include <argparse/argparse.hpp>
+#include <exception>
 #include <result.hpp>
+#include <string>
 
+constexpr const char* EPILOG = HARU_PRG_NAME " v" HARU_VERSION " - " RELEASE_TYPE;
 
 namespace haru {
-constexpr const char* EPILOG = HARU_PRG_NAME " v" HARU_VERSION " - " RELEASE_TYPE;
-args::ArgumentParser ArgsParser::s_parser = args::ArgumentParser("C++ cmake project generator", EPILOG);
-args::Group ArgsParser::s_commands_group = args::Group(s_parser, "COMMANDS", args::Group::Validators::Xor, args::Options::Global);
 
-std::array<args::Command, 2> ArgsParser::s_commands = {
-        args::Command(ArgsParser::s_commands_group, "create", "Create a project in a new directory"),
-        args::Command(ArgsParser::s_commands_group, "init", "Initialise a project in the current directory"),
-};
-enum CommandIndex : size_t {
-  CREATE,
-  INIT,
-};
+namespace arg_parse {
+  static argparse::ArgumentParser s_prg(HARU_PRG_NAME, HARU_VERSION);
+  static argparse::ArgumentParser s_create_cmd("create", HARU_VERSION);
+  static argparse::ArgumentParser s_init_cmd("init", HARU_VERSION);
 
-std::array<args::Flag, 4> ArgsParser::s_flags = {
-        args::Flag(ArgsParser::s_parser, "version", "version", {'v', "version"}),
-        args::Flag(ArgsParser::s_commands[CommandIndex::CREATE], "use-defaults", "Use default values", {'d', "use-defaults"}),
-        args::Flag(ArgsParser::s_commands[CommandIndex::INIT], "use-defaults", "Use default values", {'d', "use-defaults"}),
-        args::Flag(ArgsParser::s_commands[CommandIndex::CREATE], "force", "Force new directory creation", {'f', "force"}),
-};
+  void init() {
+    s_prg.add_description("Generate CMake projects for C/C++");
+    s_prg.add_epilog(EPILOG);
 
-std::array<args::HelpFlag, 3> ArgsParser::s_help_flags = {
-        args::HelpFlag(ArgsParser::s_parser, "help", "help", {'h', "help"}),
-        args::HelpFlag(ArgsParser::s_commands[CommandIndex::CREATE], "help", "help", {'h', "help"}),
-        args::HelpFlag(ArgsParser::s_commands[CommandIndex::INIT], "help", "help", {'h', "help"}),
-};
+    s_create_cmd.add_description("Create a project in a new directory");
+    s_create_cmd.add_argument("-d", "--use-defaults").flag().help("Use defaults for all possible fields");
+    s_create_cmd.add_argument("-f", "--force").flag();
+
+    s_init_cmd.add_description("Initialise a project in the current directory");
+    s_init_cmd.add_argument("-d", "--use-defaults").flag().help("Use defaults for all fields");
+
+    s_prg.add_subparser(s_create_cmd);
+    s_prg.add_subparser(s_init_cmd);
+  }
 
 
-cpp::result<Command, Error> ArgsParser::parse(int argc, char** argv) {
-  try {
-    s_parser.ParseCLI(argc, argv);
-  } catch (const args::Help& e) {
-    log::info("{}", help_string());
-    return Command::noop();
-  } catch (const args::Error& e) {
-    if (s_flags[0]) {
-      log::info(HARU_VERSION);
-      return Command::noop();
+  cpp::result<Command, Error> parse(int argc, char** argv) {
+    try {
+      s_prg.parse_args(argc, argv);
+    } catch (const std::exception& e) {
+      return cpp::fail(Error(Error::UNKNOWN_ERROR, e.what()));
     }
-    return cpp::fail(Error(Error::UNKNOWN_ERROR, e.what()));
-  }
 
-  if (s_flags[0]) {
-    log::info(HARU_VERSION);
-    return Command::noop();
-  }
-
-  if (s_commands[CommandIndex::CREATE]) {
     Command::Flags_t flags = Command::Flags::NONE;
-    if (s_flags[1])
-      flags |= Command::Flags::USE_DEFAULTS;
-    if (s_flags[3])
-      flags |= Command::Flags::FORCE;
-    return Command{.type = Command::CREATE, .flags = flags};
+    if (s_prg.is_subcommand_used(s_create_cmd)) {
+      if (s_create_cmd.get<bool>("-d"))
+        flags |= Command::Flags::USE_DEFAULTS;
+      if (s_create_cmd.get<bool>("-f"))
+        flags |= Command::Flags::FORCE;
+      return Command{.type = Command::CREATE, .flags = flags};
+    }
+
+    if (s_prg.is_subcommand_used(s_init_cmd)) {
+      if (s_init_cmd.get<bool>("-d"))
+        flags |= Command::Flags::USE_DEFAULTS;
+      return Command{.type = Command::INIT, .flags = flags};
+    }
+
+
+    return cpp::fail(Error(Error::UNKNOWN_ERROR));
   }
 
-  if (s_commands[CommandIndex::INIT]) {
-    Command::Flags_t flags = Command::Flags::NONE;
-    if (s_flags[2])
-      flags |= Command::Flags::USE_DEFAULTS;
-    return Command{.type = Command::INIT, .flags = flags};
+  std::string help_string() {
+    return s_prg.help().str();
   }
 
-  return cpp::fail(Error(Error::UNKNOWN_ERROR));
-}
+  std::string usage_string() {
+    return help_string();
+  }
+}// namespace arg_parse
 }// namespace haru

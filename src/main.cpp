@@ -17,17 +17,18 @@ int main(int argc, char** argv) {
 #ifndef NDEBUG
   haru::log::set_level(haru::log::Level::DEBUG);
 #endif
+  haru::arg_parse::init();
 
   if (argc <= 1) {
     haru::log::error(haru::Error(haru::Error::INPUT_ERROR, "No arguments provided"));
-    haru::log::info("{:s}", haru::ArgsParser::help_string());
+    haru::log::info("{:s}", haru::arg_parse::help_string());
     return EXIT_FAILURE;
   }
 
-  auto parse_ret = haru::ArgsParser::parse(argc, argv);
+  auto parse_ret = haru::arg_parse::parse(argc, argv);
   if (parse_ret.has_error()) {
     haru::log::error(parse_ret.error());
-    haru::log::info("{:s}", haru::ArgsParser::help_string());
+    haru::log::info("{:s}", haru::arg_parse::help_string());
     return EXIT_FAILURE;
   }
 
