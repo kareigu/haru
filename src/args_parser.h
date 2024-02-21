@@ -14,8 +14,8 @@ public:
 
   static cpp::result<Command, Error> parse(int argc, char** argv);
 
-  static const auto help_string() { return s_parser.Help(); }
-  static const auto usage_string() { return s_parser.Help(); }
+  [[nodiscard("Creates a new std::string")]] static auto help_string() { return s_parser.Help(); }
+  [[nodiscard("Creates a new std::string")]] static auto usage_string() { return s_parser.Help(); }
 
 private:
   static args::Group s_commands_group;
