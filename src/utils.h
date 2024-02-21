@@ -1,14 +1,14 @@
 #pragma once
 #include "error.h"
 #include <cstdlib>
-#include <fmt/core.h>
-#include <iostream>
 #include <optional>
 #include <result.hpp>
-#include <string>
 #include <vector>
 // NOLINTBEGIN(misc-include-cleaner): Wrong
+#include <fmt/core.h>
+#include <iostream>
 #include <sstream>
+#include <string>
 // NOLINTEND(misc-include-cleaner)
 
 #define TRY(EXPR) ({                     \
