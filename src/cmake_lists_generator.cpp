@@ -33,16 +33,6 @@ std::expected<std::string, Error> CMakeListsGenerator::generate() {
     output << "C";
   output << "\n)\n";
 
-  if (m_project_info.languages & Language::CPP) {
-    output << fmt::format("\nset(CMAKE_CXX_STANDARD {:s})\n", m_project_info.standard[0]);
-    output << "set(CMAKE_CXX_STANDARD_REQUIRED TRUE)\n";
-  }
-  if (m_project_info.languages & Language::C) {
-    output << fmt::format("\nset(CMAKE_C_STANDARD {:s})\n", m_project_info.standard[1]);
-    output << "set(CMAKE_C_STANDARD_REQUIRED TRUE)\n";
-  }
-
-
   if (include_fetch) {
     output << "set(FETCHCONTENT_QUIET FALSE)\n";
 
@@ -58,6 +48,16 @@ std::expected<std::string, Error> CMakeListsGenerator::generate() {
   output << fmt::format("\nset(PROJECT_SOURCES {:s})\n", m_project_info.entry_point);
 
   output << "\nadd_executable(${PROJECT_NAME} ${PROJECT_SOURCES})\n";
+  if (m_project_info.languages & Language::CPP) {
+    output << "\nset_target_properties(${PROJECT_NAME} PROPERTIES";
+    output << fmt::format("\n  CXX_STANDARD {:s}", m_project_info.standard[0]);
+    output << "\n  CXX_STANDARD_REQUIRED TRUE\n)\n";
+  }
+  if (m_project_info.languages & Language::C) {
+    output << "\nset_target_properties(${PROJECT_NAME} PROPERTIES";
+    output << fmt::format("\n  C_STANDARD {:s}", m_project_info.standard[1]);
+    output << "\n  C_STANDARD_REQUIRED TRUE\n)\n";
+  }
   output << "target_link_libraries(\n  ${PROJECT_NAME}\n";
   if (include_fetch) {
     for (const auto& dependency : m_project_info.dependencies)
