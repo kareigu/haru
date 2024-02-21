@@ -4,7 +4,7 @@
 #include "error.h"
 #include <argparse/argparse.hpp>
 #include <exception>
-#include <result.hpp>
+#include <expected>
 #include <string>
 
 constexpr const char* EPILOG = HARU_PRG_NAME " v" HARU_VERSION " - " RELEASE_TYPE;
@@ -32,11 +32,11 @@ namespace arg_parse {
   }
 
 
-  cpp::result<Command, Error> parse(int argc, char** argv) {
+  std::expected<Command, Error> parse(int argc, char** argv) {
     try {
       s_prg.parse_args(argc, argv);
     } catch (const std::exception& e) {
-      return cpp::fail(Error(Error::UNKNOWN_ERROR, e.what()));
+      return std::unexpected(Error(Error::UNKNOWN_ERROR, e.what()));
     }
 
     Command::Flags_t flags = Command::Flags::NONE;
@@ -55,7 +55,7 @@ namespace arg_parse {
     }
 
 
-    return cpp::fail(Error(Error::UNKNOWN_ERROR));
+    return std::unexpected(Error(Error::UNKNOWN_ERROR));
   }
 
   std::string help_string() {

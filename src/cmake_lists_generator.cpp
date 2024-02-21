@@ -1,8 +1,8 @@
 #include "cmake_lists_generator.h"
 #include "error.h"
 #include "project_info.h"
+#include <expected>
 #include <fmt/core.h>
-#include <result.hpp>
 #include <sstream>
 #include <string>
 
@@ -10,7 +10,7 @@ namespace haru {
 CMakeListsGenerator::CMakeListsGenerator(const ProjectInfo& project_info) : m_project_info(project_info) {}
 
 
-cpp::result<std::string, Error> CMakeListsGenerator::generate() {
+std::expected<std::string, Error> CMakeListsGenerator::generate() {
   std::stringstream output;
   bool include_fetch = false;
   if (m_project_info.dependencies.size() > 0) {
@@ -66,7 +66,7 @@ cpp::result<std::string, Error> CMakeListsGenerator::generate() {
   output << ")\n";
 
   if (output.fail() || output.bad())
-    return cpp::fail(Error(Error::GENERATE_ERROR, "Error writing generated CMakesLists.txt to buffer"));
+    return std::unexpected(Error(Error::GENERATE_ERROR, "Error writing generated CMakesLists.txt to buffer"));
 
 
   return output.str();

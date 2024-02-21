@@ -3,9 +3,9 @@
 #include "error.h"
 #include <array>
 #include <cstdint>
+#include <expected>
 #include <fmt/core.h>
 #include <optional>
-#include <result.hpp>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -66,7 +66,7 @@ struct ProjectInfo {
   DefaultFiles_t default_files = DefaultFiles::NONE;
   std::vector<Dependency> dependencies;
 
-  static cpp::result<ProjectInfo, Error> parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name = {});
+  static std::expected<ProjectInfo, Error> parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name = {});
 
 private:
   ProjectInfo() = default;

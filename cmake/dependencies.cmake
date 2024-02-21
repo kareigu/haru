@@ -12,17 +12,6 @@ function(fetch_project_dependencies)
     )
     fetchcontent_makeavailable(fmt)
 
-    fetchcontent_declare(
-        Result
-        GIT_REPOSITORY https://github.com/bitwizeshift/result.git
-        GIT_TAG master
-        GIT_PROGRESS TRUE
-        USES_TERMINAL_DOWNLOAD
-        TRUE
-        SYSTEM
-    )
-    fetchcontent_makeavailable(Result)
-
     set(ARGPARSE_INSTALL FALSE)
     set(ARGPARSE_BUILD_TESTS FALSE)
     fetchcontent_declare(
@@ -41,7 +30,6 @@ function(link_project_dependencies PROJECT_NAME)
     target_link_libraries(
         ${PROJECT_NAME}
         fmt
-        Result
         argparse
     )
 endfunction()

@@ -1,7 +1,7 @@
 #pragma once
 #include "error.h"
 #include "project_info.h"
-#include <result.hpp>
+#include <expected>
 #include <string>
 
 namespace haru {
@@ -11,7 +11,7 @@ public:
   ~CMakeListsGenerator() = default;
   CMakeListsGenerator() = delete;
 
-  cpp::result<std::string, Error> generate();
+  std::expected<std::string, Error> generate();
 
 private:
   ProjectInfo m_project_info;

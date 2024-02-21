@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
   }
 
   auto parse_ret = haru::arg_parse::parse(argc, argv);
-  if (parse_ret.has_error()) {
+  if (!parse_ret) {
     haru::log::error(parse_ret.error());
     haru::log::info("{:s}", haru::arg_parse::help_string());
     return EXIT_FAILURE;

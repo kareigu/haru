@@ -1,8 +1,8 @@
 #pragma once
 #include "error.h"
 #include <cstdlib>
+#include <expected>
 #include <optional>
-#include <result.hpp>
 #include <vector>
 // NOLINTBEGIN(misc-include-cleaner): Wrong
 #include <fmt/core.h>
@@ -11,16 +11,16 @@
 #include <string>
 // NOLINTEND(misc-include-cleaner)
 
-#define TRY(EXPR) ({                     \
-  auto&& _temp_ret = (EXPR);             \
-  if (_temp_ret.has_error())             \
-    return cpp::fail(_temp_ret.error()); \
-  _temp_ret.value();                     \
+#define TRY(EXPR) ({                           \
+  auto&& _temp_ret = (EXPR);                   \
+  if (!_temp_ret)                              \
+    return std::unexpected(_temp_ret.error()); \
+  _temp_ret.value();                           \
 })
 
 #define MUST(EXPR) ({                    \
   auto&& _temp_ret = (EXPR);             \
-  if (_temp_ret.has_error()) {           \
+  if (!_temp_ret) {                      \
     haru::log::error(_temp_ret.error()); \
     std::exit(EXIT_FAILURE);             \
   }                                      \
@@ -37,7 +37,7 @@ namespace haru {
  * @return T on success, on error Error with more information
  */
 template<typename T>
-cpp::result<T, Error> prompt(const char* text, std::optional<T> default_value = {}, bool new_line = false) {
+std::expected<T, Error> prompt(const char* text, std::optional<T> default_value = {}, bool new_line = false) {
   auto default_value_formatted = default_value.has_value() ? fmt::format(" ({})", default_value.value()) : "";
   fmt::print("{:s}{:s}: ", text, default_value_formatted, new_line);
   if (new_line)
@@ -47,7 +47,7 @@ cpp::result<T, Error> prompt(const char* text, std::optional<T> default_value = 
   std::getline(std::cin, value_input);
   std::istringstream ss(value_input);
   if (!default_value.has_value() && value_input.empty())
-    return cpp::fail(Error(Error::Type::NO_INPUT, fmt::format("{} needs to be given", text)));
+    return std::unexpected(Error(Error::Type::NO_INPUT, fmt::format("{} needs to be given", text)));
 
   if (default_value.has_value() && value_input.empty())
     return default_value.value();
@@ -57,7 +57,7 @@ cpp::result<T, Error> prompt(const char* text, std::optional<T> default_value = 
 }
 
 template<typename T>
-cpp::result<std::vector<T>, Error> prompt_list(const char* text, std::vector<T> valid_values, std::optional<std::vector<T>> default_values = {}, bool new_line = false) {
+std::expected<std::vector<T>, Error> prompt_list(const char* text, std::vector<T> valid_values, std::optional<std::vector<T>> default_values = {}, bool new_line = false) {
   std::string default_values_formatted;
   if (default_values.has_value()) {
     auto values = default_values.value();
@@ -74,7 +74,7 @@ empty_defaults:
 
   std::string valid_values_formatted;
   if (valid_values.empty())
-    return cpp::fail(Error(Error::UNKNOWN_ERROR, "Implementation error, missing valid values"));
+    return std::unexpected(Error(Error::UNKNOWN_ERROR, "Implementation error, missing valid values"));
 
   {
     std::ostringstream ss;
@@ -94,7 +94,7 @@ empty_defaults:
 
 
   if (!default_values.has_value() && value_input.empty())
-    return cpp::fail(Error(Error::Type::NO_INPUT, fmt::format("{} needs to be given", text)));
+    return std::unexpected(Error(Error::Type::NO_INPUT, fmt::format("{} needs to be given", text)));
 
   if (default_values.has_value() && value_input.empty())
     return default_values.value();
@@ -122,7 +122,7 @@ empty_defaults:
     T value;
     input >> value;
     if (input.bad() || input.fail())
-      return cpp::fail(Error(Error::INPUT_ERROR, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
+      return std::unexpected(Error(Error::INPUT_ERROR, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
 
     bool invalid = true;
     for (const auto& valid_value : valid_values) {
@@ -132,7 +132,7 @@ empty_defaults:
       }
     }
     if (invalid)
-      return cpp::fail(Error(Error::INPUT_ERROR, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
+      return std::unexpected(Error(Error::INPUT_ERROR, fmt::format("Invalid value provided: {:s}, valid values: {:s}", input.str(), valid_values_formatted)));
 
 
     ret[i] = std::move(value);
@@ -141,6 +141,6 @@ empty_defaults:
   return ret;
 }
 
-cpp::result<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line = false);
+std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line = false);
 
 }// namespace haru

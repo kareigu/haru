@@ -5,17 +5,17 @@
 #include "log.h"
 #include "utils.h"
 #include <cstddef>
+#include <expected>
 #include <fmt/core.h>
 #include <optional>
-#include <result.hpp>
 #include <sstream>
 #include <string>
 #include <vector>
 
 namespace haru {
-cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info);
+std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info);
 
-cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name) {
+std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name) {
   ProjectInfo project_info;
   auto default_std_versions = DEFAULT_STD_VERSIONS;
   if (flags & Command::Flags::USE_DEFAULTS) {
@@ -55,7 +55,7 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
     }
   }
   if (project_info.languages == Language::NONE)
-    return cpp::fail(Error(Error::INPUT_ERROR, "You need select at least 1 valid language"));
+    return std::unexpected(Error(Error::INPUT_ERROR, "You need select at least 1 valid language"));
 
   std::string default_entry_point = project_info.languages & Language::CPP ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT) : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
   project_info.entry_point = TRY(prompt<std::string>("Entrypoint", default_entry_point));
@@ -94,7 +94,7 @@ cpp::result<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t f
   return project_info;
 }
 
-cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
+std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
   auto default_dependencies = DEFAULT_DEPENDENCIES();
   std::stringstream defaults_formatted;
   size_t last_index = default_dependencies.size() - 1;
@@ -126,7 +126,7 @@ cpp::result<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
     else if (source_string == "local" || source_string == "LOCAL" || source_string == "Local")
       source = Dependency::Source::LOCAL;
     else
-      return cpp::fail(Error(Error::INPUT_ERROR, "must be git or local"));
+      return std::unexpected(Error(Error::INPUT_ERROR, "must be git or local"));
 
     dependency.source = source;
 
