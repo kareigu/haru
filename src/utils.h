@@ -143,4 +143,6 @@ empty_defaults:
 
 std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line = false);
 
+std::expected<void, Error> check_command_exists(const std::string_view command, const std::string_view flags = "--version");
+
 }// namespace haru

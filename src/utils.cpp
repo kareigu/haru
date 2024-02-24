@@ -5,6 +5,7 @@
 #include <iostream>
 #include <ranges>
 #include <string>
+#include <string_view>
 
 namespace haru {
 std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line) {
@@ -29,5 +30,15 @@ std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, b
     return false;
 
   return std::unexpected(Error(Error::INPUT_ERROR, "Only y/n/<empty> are allowed"));
+}
+
+std::expected<void, Error> check_command_exists(const std::string_view command, const std::string_view flags) {
+#if _WIN32
+  #error "Unimplemented"
+#else
+  if (std::system(fmt::format("{:s} {:s} > /dev/null 2>&1", command, flags).c_str()))
+    return std::unexpected(Error(Error::NOT_FOUND, fmt::format("{:s} does not exist in path", command)));
+#endif
+  return {};
 }
 }// namespace haru

@@ -18,13 +18,17 @@ public:
     ALREADY_EXISTS,
     IO_ERROR,
     GENERATE_ERROR,
+    EXEC_ERROR,
+    NOT_FOUND,
     UNKNOWN_ERROR = TYPE_MAX_VALUE,
   };
   using Type::ALREADY_EXISTS;
+  using Type::EXEC_ERROR;
   using Type::GENERATE_ERROR;
   using Type::INPUT_ERROR;
   using Type::IO_ERROR;
   using Type::NO_INPUT;
+  using Type::NOT_FOUND;
   using Type::UNKNOWN_ERROR;
   using Type::WRITE_ERROR;
 

@@ -11,6 +11,8 @@ constexpr const char** init_type_as_string(auto max_value) {
   ERR_STR(ALREADY_EXISTS);
   ERR_STR(IO_ERROR);
   ERR_STR(GENERATE_ERROR);
+  ERR_STR(EXEC_ERROR);
+  ERR_STR(NOT_FOUND);
   array[max_value] = "Unknown";
 
   return array;

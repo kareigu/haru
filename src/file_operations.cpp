@@ -6,6 +6,7 @@
 #include "project_info.h"
 #include "utils.h"
 #include <cstddef>
+#include <cstdlib>
 #include <expected>
 #include <filesystem>
 #include <fmt/core.h>
@@ -136,6 +137,24 @@ std::expected<void, Error> write_default_files(const std::filesystem::path& work
     if (output.bad() || output.fail())
       return std::unexpected(Error(Error::WRITE_ERROR, "Failed writing .gitignore"));
     log::info("Wrote {:s}", filepath.string());
+  }
+  return {};
+}
+
+std::expected<void, Error> format_cmake_files(const std::filesystem::path& workpath, const std::vector<CMakeListsGenerator::CMakeFile>& files) {
+  constexpr const char* CMAKE_FORMATTER = "gersemi";
+  TRY(check_command_exists(CMAKE_FORMATTER));
+  log::info("Found {:s} to run formatting", CMAKE_FORMATTER);
+
+  for (const auto& file : files) {
+    std::filesystem::path path = workpath;
+    path += "/";
+    path += file.filepath;
+    std::string filepath = path.string();
+    if (std::system(fmt::format("{:s} -i {:s}", CMAKE_FORMATTER, filepath).c_str()))
+      return std::unexpected(Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {:s}", filepath, CMAKE_FORMATTER)));
+
+    log::info("Formatted {:s}", filepath);
   }
   return {};
 }
