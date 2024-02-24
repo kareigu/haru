@@ -10,44 +10,29 @@ function(add_bake_in_files)
         DOC
             "xxd needed to generate .cpp source files for baking default configuration files into the binary"
     )
-    set(BAKE_IN
-        "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
-        "${CMAKE_SOURCE_DIR}/generated/gersemirc.cpp"
-        "${CMAKE_SOURCE_DIR}/generated/gitignore.cpp"
+    set(filenames
+        "clang_format"
+        "gersemirc"
+        "gitignore"
     )
-    add_custom_command(
-        OUTPUT
-            "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
-        COMMAND
-            ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_clang_format"
-            "${CMAKE_SOURCE_DIR}/assets/clang-format" ">"
-            "${CMAKE_SOURCE_DIR}/generated/clang_format.cpp"
-        DEPENDS
-            "${CMAKE_SOURCE_DIR}/assets/clang-format"
-    )
-    add_custom_command(
-        OUTPUT
-            "${CMAKE_SOURCE_DIR}/generated/gersemirc.cpp"
-        COMMAND
-            ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_gersemirc"
-            "${CMAKE_SOURCE_DIR}/assets/gersemirc" ">"
-            "${CMAKE_SOURCE_DIR}/generated/gersemirc.cpp"
-        DEPENDS
-            "${CMAKE_SOURCE_DIR}/assets/gersemirc"
-    )
-    add_custom_command(
-        OUTPUT
-            "${CMAKE_SOURCE_DIR}/generated/gitignore.cpp"
-        COMMAND
-            ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_gitignore"
-            "${CMAKE_SOURCE_DIR}/assets/gitignore" ">"
-            "${CMAKE_SOURCE_DIR}/generated/gitignore.cpp"
-        DEPENDS
-            "${CMAKE_SOURCE_DIR}/assets/gitignore"
-    )
-    set(BAKE_IN ${BAKE_IN} PARENT_SCOPE)
+    set(output_paths)
+
+    foreach(file ${filenames})
+        add_custom_command(
+            OUTPUT
+                "${CMAKE_SOURCE_DIR}/generated/${file}.cpp"
+            COMMAND
+                ${CMAKE_COMMAND} -E env "${XXD}" "-i" "-n" "bake_in_${file}"
+                "${CMAKE_SOURCE_DIR}/assets/${file}" ">"
+                "${CMAKE_SOURCE_DIR}/generated/${file}.cpp"
+            DEPENDS
+                "${CMAKE_SOURCE_DIR}/assets/${file}"
+        )
+        list(APPEND output_paths "${CMAKE_SOURCE_DIR}/generated/${file}.cpp")
+        message("Added build step for ${file}")
+    endforeach()
+    set(BAKE_IN ${output_paths} PARENT_SCOPE)
 endfunction()
 #
 # end: Bake configuration files into binary
 #
-
