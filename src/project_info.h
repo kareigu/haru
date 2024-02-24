@@ -66,6 +66,8 @@ struct ProjectInfo {
   DefaultFiles_t default_files = DefaultFiles::NONE;
   std::vector<Dependency> dependencies;
 
+  static const size_t CPP_INDEX = 0;
+  static const size_t C_INDEX = 1;
   static std::expected<ProjectInfo, Error> parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name = {});
 
 private:

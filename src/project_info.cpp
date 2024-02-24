@@ -27,8 +27,8 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
     project_info.cmake_version = DEFAULT_CMAKE_VERSION;
     project_info.version = DEFAULT_VERSION;
     project_info.languages = Language::CPP;
-    project_info.standard[0] = default_std_versions[0];
-    project_info.standard[1] = default_std_versions[1];
+    project_info.standard[ProjectInfo::CPP_INDEX] = default_std_versions[ProjectInfo::CPP_INDEX];
+    project_info.standard[ProjectInfo::C_INDEX] = default_std_versions[ProjectInfo::C_INDEX];
     project_info.entry_point = fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT);
     project_info.default_files = DEFAULT_FILES;
     project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
@@ -45,13 +45,13 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
   for (const auto& language : input_languages) {
     if (language == Language::to_string(Language::CPP)) {
       project_info.languages |= Language::CPP;
-      std::string standard = TRY(prompt<std::string>("C++-standard", default_std_versions[0]));
-      project_info.standard[0] = standard;
+      std::string standard = TRY(prompt<std::string>("C++-standard", default_std_versions[ProjectInfo::CPP_INDEX]));
+      project_info.standard[ProjectInfo::CPP_INDEX] = standard;
     }
     if (language == Language::to_string(Language::C)) {
       project_info.languages |= Language::C;
-      std::string standard = TRY(prompt<std::string>("C-standard", default_std_versions[1]));
-      project_info.standard[1] = standard;
+      std::string standard = TRY(prompt<std::string>("C-standard", default_std_versions[ProjectInfo::C_INDEX]));
+      project_info.standard[ProjectInfo::C_INDEX] = standard;
     }
   }
   if (project_info.languages == Language::NONE)
