@@ -39,7 +39,7 @@ std::expected<std::filesystem::path, Error> create_work_directory(bool init, con
   }
 
   if (!std::filesystem::is_empty(workpath)) {
-    bool proceed = TRY(prompt_yes_no("Current directory is not empty, proceed?", false));
+    bool proceed = overwrite ? true : TRY(prompt_yes_no("Current directory is not empty, proceed?", false));
     if (!proceed)
       return std::unexpected(Error(Error::IO_ERROR, "Current directory is not empty"));
   }
@@ -77,10 +77,10 @@ std::expected<void, Error> write_entry_point(const std::filesystem::path& workpa
 
   auto full_path = workpath;
   full_path += "/" + entry_point;
-  auto folder = full_path;
-  folder.remove_filename();
-  if (!std::filesystem::create_directory(folder))
-    return std::unexpected(Error(Error::IO_ERROR, fmt::format("Failed creating directory {:s}", folder.string())));
+  auto directory = full_path;
+  directory.remove_filename();
+  if (!std::filesystem::exists(directory) && !std::filesystem::create_directory(directory))
+    return std::unexpected(Error(Error::IO_ERROR, fmt::format("Failed creating directory {:s}", directory.string())));
 
   std::ofstream output(full_path);
   if (!output.is_open())

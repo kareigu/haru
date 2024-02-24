@@ -26,6 +26,7 @@ namespace arg_parse {
 
     s_init_cmd.add_description("Initialise a project in the current directory");
     s_init_cmd.add_argument("-d", "--use-defaults").flag().help("Use defaults for all fields");
+    s_init_cmd.add_argument("-f", "--force").flag();
 
     s_prg.add_subparser(s_create_cmd);
     s_prg.add_subparser(s_init_cmd);
@@ -51,6 +52,8 @@ namespace arg_parse {
     if (s_prg.is_subcommand_used(s_init_cmd)) {
       if (s_init_cmd.get<bool>("-d"))
         flags |= Command::Flags::USE_DEFAULTS;
+      if (s_init_cmd.get<bool>("-f"))
+        flags |= Command::Flags::FORCE;
       return Command{.type = Command::INIT, .flags = flags};
     }
 
