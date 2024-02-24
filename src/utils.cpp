@@ -34,7 +34,8 @@ std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, b
 
 std::expected<void, Error> check_command_exists(const std::string_view command, const std::string_view flags) {
 #if _WIN32
-  #error "Unimplemented"
+  if (std::system(fmt::format("{:s} {:s} > /dev/null 2>&1", command, flags).c_str()))
+    return std::unexpected(Error(Error::NOT_FOUND, fmt::format("{:s} does not exist in path", command)));
 #else
   if (std::system(fmt::format("{:s} {:s} > /dev/null 2>&1", command, flags).c_str()))
     return std::unexpected(Error(Error::NOT_FOUND, fmt::format("{:s} does not exist in path", command)));
