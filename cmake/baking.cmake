@@ -14,6 +14,10 @@ function(add_bake_in_files)
         "clang_format"
         "gersemirc"
         "gitignore"
+        "cmakelists"
+        "cmake/dependencies"
+        "cmake/compile_flags"
+        "cmake/tidy"
     )
     set(output_paths)
 

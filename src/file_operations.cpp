@@ -1,5 +1,6 @@
 #include "file_operations.h"
 #include "bake_in.h"
+#include "cmake_lists_generator.h"
 #include "error.h"
 #include "log.h"
 #include "project_info.h"
@@ -47,15 +48,25 @@ std::expected<std::filesystem::path, Error> create_work_directory(bool init, con
   return workpath;
 }
 
-std::expected<void, Error> write_cmake_lists(const std::filesystem::path& workpath, const std::string& contents) {
-  auto filepath = workpath;
-  filepath += "/CMakeLists.txt";
-  std::ofstream output(filepath);
-  output << contents;
-  if (output.fail() || output.bad())
-    return std::unexpected(Error(Error::WRITE_ERROR, "Failed writing CMakeLists.txt"));
+std::expected<void, Error> write_cmake_files(const std::filesystem::path& workpath, const std::vector<CMakeListsGenerator::CMakeFile>& files) {
+  for (const auto& file : files) {
+    std::filesystem::path filepath = workpath;
+    if (file.filepath.has_parent_path()) {
+      std::filesystem::path file_directory = workpath;
+      file_directory += "/";
+      file_directory += file.filepath.parent_path();
+      if (!std::filesystem::exists(file_directory) && !std::filesystem::create_directories(file_directory))
+        return std::unexpected(Error(Error::IO_ERROR, fmt::format("Couldn't create directories for path {:s}", file_directory.string())));
+    }
+    filepath += "/";
+    filepath += file.filepath;
+    std::ofstream output(filepath);
+    output << file.contents;
+    if (output.fail() || output.bad())
+      return std::unexpected(Error(Error::WRITE_ERROR, fmt::format("Failed writing {:s}", filepath.string())));
 
-  log::info("Wrote {}", filepath.string());
+    log::info("Wrote {}", filepath.string());
+  }
   return {};
 }
 

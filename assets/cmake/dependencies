@@ -1,0 +1,11 @@
+function(fetch_project_dependencies)
+@@START_DEPENDENCIES@@
+endfunction()
+
+function(link_project_dependencies PROJECT_NAME)
+    target_link_libraries(
+        ${PROJECT_NAME}
+@@START_DEPENDENCIES_LINK@@
+    )
+endfunction()
+

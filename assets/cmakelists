@@ -1,0 +1,70 @@
+cmake_minimum_required(VERSION @@CMAKE_VERSION@@)
+
+include(${CMAKE_SOURCE_DIR}/cmake/compile_flags.cmake)
+@@DEPENDENCIES_INCLUDE@@
+@@TIDY_INCLUDE@@
+@@FETCH_CONTENT_INCLUDE@@
+
+project(@@PROJECT_NAME@@ VERSION @@PROJECT_VERSION@@ LANGUAGES @@LANGUAGES@@)
+set(NINJA_MULTICONFIG (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config"))
+
+@@FETCH_DEPENDENCIES@@
+
+set(PROJECT_SOURCES
+    @@ENTRYPOINT@@
+)
+
+add_executable(
+    ${PROJECT_NAME}
+    ${PROJECT_SOURCES}
+)
+
+set_target_properties(
+    ${PROJECT_NAME}
+    PROPERTIES
+        @@CXX_STANDARD@@
+        @@C_STANDARD@@
+)
+
+add_project_compile_flags(${PROJECT_NAME})
+@@LINK_DEPENDENCIES@@
+
+@@ADD_TIDY@@
+
+if(NINJA_MULTICONFIG)
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        string(TOLOWER ${CONFIG} BUILD_NAME)
+        add_custom_target(
+            "run-${BUILD_NAME}"
+            COMMAND
+                ${CMAKE_COMMAND} -E env
+                "${CMAKE_CURRENT_BINARY_DIR}/${CONFIG}/${PROJECT_NAME}"
+            USES_TERMINAL
+            VERBATIM
+            DEPENDS
+                ${PROJECT_NAME}:$<CONFIG>
+        )
+    endforeach()
+endif()
+add_custom_target(
+    run
+    COMMAND
+        ${CMAKE_COMMAND} -E env "$<TARGET_FILE:${PROJECT_NAME}>"
+    USES_TERMINAL
+    VERBATIM
+    DEPENDS
+        ${PROJECT_NAME}:$<CONFIG>
+)
+
+if(NINJA_MULTICONFIG)
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        string(TOLOWER ${CONFIG} CONFIG)
+        add_custom_target(
+            ${CONFIG}
+            COMMAND
+                ${CMAKE_COMMAND} --build "${CMAKE_CURRENT_BINARY_DIR}"
+                "--config" "${CONFIG}"
+            USES_TERMINAL
+        )
+    endforeach()
+endif()
