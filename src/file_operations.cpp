@@ -119,7 +119,7 @@ namespace file_ops {
         return std::unexpected(Error(Error::WRITE_ERROR, "Failed writing .clang-format"));
       log::info("Wrote {:s}", filepath.string());
     }
-    if (default_files & DefaultFiles::CLANG_FORMAT) {
+    if (default_files & DefaultFiles::GERSEMIRC) {
       auto filepath = workpath;
       filepath += "/.gersemirc.py";
       std::ofstream output(filepath);
