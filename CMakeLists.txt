@@ -91,3 +91,4 @@ if(NINJA_MULTICONFIG)
         )
     endforeach()
 endif()
+
