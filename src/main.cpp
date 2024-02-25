@@ -46,13 +46,13 @@ int main(int argc, char** argv) {
     haru::CMakeListsGenerator cmake_generator(project_info);
     auto cmake_files = MUST(cmake_generator.generate());
 
-    std::filesystem::path workpath = MUST(haru::create_work_directory(init, project_info.name, ran_command.flags & haru::Command::Flags::FORCE));
-    MUST(haru::write_cmake_files(workpath, cmake_files));
-    MUST(haru::write_entry_point(workpath, project_info.entry_point, project_info.languages));
-    MUST(haru::write_default_files(workpath, project_info.default_files));
+    std::filesystem::path workpath = MUST(haru::file_ops::create_work_directory(init, project_info.name, ran_command.flags & haru::Command::Flags::FORCE));
+    MUST(haru::file_ops::write_cmake_files(workpath, cmake_files));
+    MUST(haru::file_ops::write_entry_point(workpath, project_info.entry_point, project_info.languages));
+    MUST(haru::file_ops::write_default_files(workpath, project_info.default_files));
 
     if (project_info.default_files & haru::DefaultFiles::GERSEMIRC) {
-      auto format_ret = haru::format_cmake_files(workpath, cmake_files);
+      auto format_ret = haru::file_ops::format_cmake_files(workpath, cmake_files);
       if (!format_ret)
         haru::log::warn("Unable to format CMake files: {:s}", format_ret.error().message().value_or("formatter not found"));
     }
