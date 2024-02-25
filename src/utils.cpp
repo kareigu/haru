@@ -1,5 +1,7 @@
 #include "utils.h"
 #include "error.h"
+#include <algorithm>
+#include <cctype>
 #include <expected>
 #include <fmt/core.h>
 #include <iostream>
@@ -19,14 +21,15 @@ std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, b
 
   auto is_space = [](char c) { return c == ' '; };
   value_input = std::ranges::to<std::string>(value_input | std::views::drop_while(is_space) | std::views::reverse | std::views::drop_while(is_space) | std::views::reverse);
+  std::transform(value_input.begin(), value_input.end(), value_input.begin(), [](char c) { return std::tolower(c); });
 
   if (value_input.empty())
     return default_value;
 
-  if (value_input == "Y" || value_input == "y" || value_input == "yes" || value_input == "YES" || value_input == "Yes")
+  if (value_input == "y" || value_input == "yes")
     return true;
 
-  if (value_input == "N" || value_input == "n" || value_input == "no" || value_input == "NO" || value_input == "No")
+  if (value_input == "n" || value_input == "no")
     return false;
 
   return std::unexpected(Error(Error::INPUT_ERROR, "Only y/n/<empty> are allowed"));
