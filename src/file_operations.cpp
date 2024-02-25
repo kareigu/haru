@@ -158,14 +158,11 @@ namespace file_ops {
     log::info("Found {:s} to run formatting", CMAKE_FORMATTER);
 
     for (const auto& file : files) {
-      std::filesystem::path path = workpath;
-      path += "/";
-      path += file.filepath;
-      std::string filepath = path.string();
-      if (std::system(fmt::format("{:s} -i {:s}", CMAKE_FORMATTER, filepath).c_str()))
+      std::string filepath = file.filepath.string();
+      if (std::system(fmt::format("cd {:s} && {:s} -i {:s}", workpath.string(), CMAKE_FORMATTER, filepath).c_str()))
         return std::unexpected(Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {:s}", filepath, CMAKE_FORMATTER)));
 
-      log::info("Formatted {:s}", filepath);
+      log::info("Formatted {:s}/{:s}", workpath.string(), filepath);
     }
     return {};
   }
