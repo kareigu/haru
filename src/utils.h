@@ -27,6 +27,14 @@
   _temp_ret.value();                     \
 })
 
+#define WARN(EXPR) ({                   \
+  auto&& _temp_ret = (EXPR);            \
+  if (!_temp_ret) {                     \
+    haru::log::warn(_temp_ret.error()); \
+    std::exit(EXIT_FAILURE);            \
+  }                                     \
+})
+
 namespace haru {
 
 /**

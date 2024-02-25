@@ -30,6 +30,8 @@ namespace log {
     fmt::println(stdout, format_string, std::forward<T>(args)...);
   }
 
+  void warn(Error error);
+
   template<typename... T>
   constexpr void warn(fmt::format_string<T...> format_string, T&&... args) {
     if (ltoi(level()) < ltoi(Level::WARN))
