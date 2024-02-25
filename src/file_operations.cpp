@@ -142,6 +142,13 @@ namespace file_ops {
     return {};
   }
 
+  std::expected<void, Error> format_generated_files(const std::filesystem::path& workpath, FormatGeneratedFilesArgs args) noexcept {
+    if (args.default_files & DefaultFiles::GERSEMIRC)
+      TRY(format_cmake_files(workpath, args.files));
+
+    return {};
+  }
+
   std::expected<void, Error> format_cmake_files(const std::filesystem::path& workpath, const std::vector<CMakeListsGenerator::CMakeFile>& files) {
     constexpr const char* CMAKE_FORMATTER = "gersemi";
     TRY(check_command_exists(CMAKE_FORMATTER));

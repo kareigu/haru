@@ -51,11 +51,7 @@ int main(int argc, char** argv) {
     MUST(haru::file_ops::write_entry_point(workpath, project_info.entry_point, project_info.languages));
     MUST(haru::file_ops::write_default_files(workpath, project_info.default_files));
 
-    if (project_info.default_files & haru::DefaultFiles::GERSEMIRC) {
-      auto format_ret = haru::file_ops::format_cmake_files(workpath, cmake_files);
-      if (!format_ret)
-        haru::log::warn("Unable to format CMake files: {:s}", format_ret.error().message().value_or("formatter not found"));
-    }
+    WARN(haru::file_ops::format_generated_files(workpath, {project_info.default_files, cmake_files}));
   }
 
   return EXIT_SUCCESS;
