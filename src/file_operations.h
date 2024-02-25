@@ -16,8 +16,10 @@ namespace file_ops {
   struct FormatGeneratedFilesArgs {
     DefaultFiles_t default_files;
     const std::vector<CMakeListsGenerator::CMakeFile>& files;
+    const std::string& source_path;
   };
   std::expected<void, Error> format_generated_files(const std::filesystem::path& workpath, FormatGeneratedFilesArgs args) noexcept;
   std::expected<void, Error> format_cmake_files(const std::filesystem::path& workpath, const std::vector<CMakeListsGenerator::CMakeFile>& files);
+  std::expected<void, Error> format_source_files(const std::filesystem::path& workpath, const std::string& source_path);
 }// namespace file_ops
 }// namespace haru

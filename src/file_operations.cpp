@@ -146,6 +146,9 @@ namespace file_ops {
     if (args.default_files & DefaultFiles::GERSEMIRC)
       TRY(format_cmake_files(workpath, args.files));
 
+    if (args.default_files & DefaultFiles::CLANG_FORMAT)
+      TRY(format_source_files(workpath, args.source_path));
+
     return {};
   }
 
@@ -164,6 +167,17 @@ namespace file_ops {
 
       log::info("Formatted {:s}", filepath);
     }
+    return {};
+  }
+
+  std::expected<void, Error> format_source_files(const std::filesystem::path& workpath, const std::string& source_path) {
+    constexpr const char* SOURCE_FORMATTER = "clang-format";
+    TRY(check_command_exists(SOURCE_FORMATTER));
+    log::info("Found {:s} to run formatting", SOURCE_FORMATTER);
+    if (std::system(fmt::format("cd {:s} && {:s} -i {:s}", workpath.string(), SOURCE_FORMATTER, source_path).c_str()))
+      return std::unexpected(Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {:s}", source_path, SOURCE_FORMATTER)));
+
+    log::info("Formatted {:s}/{:s}", workpath.string(), source_path);
     return {};
   }
 }// namespace file_ops
