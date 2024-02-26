@@ -5,14 +5,17 @@
 #include "log.h"
 #include "project_info.h"
 #include "utils.h"
+#include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <execution>
 #include <expected>
 #include <filesystem>
 #include <fmt/core.h>
 #include <fstream>
 #include <string>
 #include <system_error>
+#include <vector>
 
 namespace haru {
 namespace file_ops {
@@ -157,13 +160,23 @@ namespace file_ops {
     TRY(check_command_exists(CMAKE_FORMATTER));
     log::info("Found {:s} to run formatting", CMAKE_FORMATTER);
 
-    for (const auto& file : files) {
-      std::string filepath = file.filepath.string();
-      if (std::system(fmt::format("cd {:s} && {:s} -i {:s}", workpath.string(), CMAKE_FORMATTER, filepath).c_str()))
-        return std::unexpected(Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {:s}", filepath, CMAKE_FORMATTER)));
+    std::optional<Error> failed = std::nullopt;
+    std::string path = workpath.string();
+    std::for_each(
+            std::execution::parallel_policy(),
+            files.begin(), files.end(),
+            [&path, &CMAKE_FORMATTER, &failed](const CMakeListsGenerator::CMakeFile& file) {
+              std::string filepath = file.filepath.string();
+              if (std::system(fmt::format("cd {:s} && {:s} -i {:s}", path, CMAKE_FORMATTER, filepath).c_str())) {
+                failed = Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {:s}", filepath, CMAKE_FORMATTER));
+                return;
+              }
+              log::info("Formatted {:s}/{:s}", path, filepath);
+            });
 
-      log::info("Formatted {:s}/{:s}", workpath.string(), filepath);
-    }
+    if (failed.has_value())
+      return std::unexpected(failed.value());
+
     return {};
   }
 
