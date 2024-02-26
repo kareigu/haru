@@ -51,10 +51,11 @@ int main(int argc, char** argv) {
     MUST(haru::file_ops::write_entry_point(workpath, project_info.entry_point, project_info.languages));
     MUST(haru::file_ops::write_default_files(workpath, project_info.default_files));
 
-    WARN(haru::file_ops::format_generated_files(workpath,
-                                                {.default_files = project_info.default_files,
-                                                 .files = cmake_files,
-                                                 .source_path = project_info.entry_point}));
+    haru::file_ops::FormatGeneratedFilesArgs format_generated_files_args{
+            .default_files = project_info.default_files,
+            .files = cmake_files,
+            .source_path = project_info.entry_point};
+    WARN(haru::file_ops::format_generated_files(workpath, format_generated_files_args));
   }
 
   return EXIT_SUCCESS;
