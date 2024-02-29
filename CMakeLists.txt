@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
     src/cmake_lists_generator.cpp
     src/file_operations.cpp
     src/log.cpp
+    src/post_ops.cpp
 )
 add_bake_in_files()
 

@@ -4,6 +4,7 @@
 #include "error.h"
 #include "file_operations.h"
 #include "log.h"
+#include "post_ops.h"
 #include "project_info.h"
 #include "utils.h"
 #include <cstdlib>
@@ -58,6 +59,8 @@ int main(int argc, char** argv) {
             .files = cmake_files,
             .source_path = project_info.entry_point};
     WARN(haru::file_ops::format_generated_files(workpath, format_generated_files_args));
+
+    MUST(haru::handle_post_ops(workpath, ran_command.flags & haru::Command::Flags::USE_DEFAULTS));
   }
 
   return EXIT_SUCCESS;

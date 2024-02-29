@@ -20,7 +20,7 @@ ___
 - [X] Include default dependencies if desired
 - [X] Add dependencies at project creation time
 - [X] Add dependencies at project creation time
-- [ ] Initialise git repository after project creation
+- [X] Initialise git repository after project creation
 - [ ] Initialise CMake after project creation
 
 ___
