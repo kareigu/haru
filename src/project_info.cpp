@@ -19,7 +19,7 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
   ProjectInfo project_info;
   auto default_std_versions = DEFAULT_STD_VERSIONS;
   if (flags & Command::Flags::USE_DEFAULTS) {
-    auto default_dependencies = DEFAULT_DEPENDENCIES();
+    auto default_dependencies = DEFAULT_DEPENDENCIES(default_std_versions[ProjectInfo::CPP_INDEX]);
     if (default_name.has_value())
       project_info.name = default_name.value();
     else
@@ -95,7 +95,7 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
 }
 
 std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
-  auto default_dependencies = DEFAULT_DEPENDENCIES();
+  auto default_dependencies = DEFAULT_DEPENDENCIES(project_info.standard[ProjectInfo::CPP_INDEX].c_str());
   std::stringstream defaults_formatted;
   size_t last_index = default_dependencies.size() - 1;
   for (size_t i = 0; i < last_index; i++)
