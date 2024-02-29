@@ -156,7 +156,7 @@ namespace file_ops {
   }
 
   std::expected<void, Error> format_cmake_files(const std::filesystem::path& workpath, const std::vector<CMakeListsGenerator::CMakeFile>& files) {
-    constexpr const char* CMAKE_FORMATTER = "gersemi";
+    static constexpr const char* CMAKE_FORMATTER = "gersemi";
     TRY(check_command_exists(CMAKE_FORMATTER));
     log::info("Found {:s} to run formatting", CMAKE_FORMATTER);
 
@@ -164,7 +164,7 @@ namespace file_ops {
     std::for_each(
             std::execution::parallel_policy(),
             files.begin(), files.end(),
-            [&workpath, &CMAKE_FORMATTER, &failed](const CMakeListsGenerator::CMakeFile& file) {
+            [&workpath, &failed](const CMakeListsGenerator::CMakeFile& file) {
               auto filepath = file.filepath.string();
               if (std::system(fmt::format("cd {} && {:s} -i {}", workpath, CMAKE_FORMATTER, filepath).c_str())) {
                 failed = Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {}", filepath, CMAKE_FORMATTER));
@@ -180,7 +180,7 @@ namespace file_ops {
   }
 
   std::expected<void, Error> format_source_files(const std::filesystem::path& workpath, const std::string& source_path) {
-    constexpr const char* SOURCE_FORMATTER = "clang-format";
+    static constexpr const char* SOURCE_FORMATTER = "clang-format";
     TRY(check_command_exists(SOURCE_FORMATTER));
     log::info("Found {:s} to run formatting", SOURCE_FORMATTER);
     if (std::system(fmt::format("cd {} && {:s} -i {:s}", workpath, SOURCE_FORMATTER, source_path).c_str()))
