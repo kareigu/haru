@@ -51,6 +51,8 @@ int main(int argc, char** argv) {
     MUST(haru::file_ops::write_entry_point(workpath, project_info.entry_point, project_info.languages));
     MUST(haru::file_ops::write_default_files(workpath, project_info.default_files));
 
+    haru::log::info("Generation complete for {}", workpath);
+
     haru::file_ops::FormatGeneratedFilesArgs format_generated_files_args{
             .default_files = project_info.default_files,
             .files = cmake_files,
