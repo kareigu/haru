@@ -25,20 +25,20 @@ namespace file_ops {
       workpath += "/" + name;
       if (std::filesystem::exists(workpath)) {
         if (!overwrite)
-          return std::unexpected(Error(Error::ALREADY_EXISTS, fmt::format("{:s} already exists at {:s}. Use '--force' to overwrite", name, workpath.string())));
+          return std::unexpected(Error(
 
         std::error_code ec;
         std::filesystem::remove_all(workpath, ec);
         if (ec)
           return std::unexpected(Error(
                   Error::IO_ERROR,
-                  fmt::format("Could not remove existing directory at {:s}, {:s}", workpath.string(), ec.message())));
+                  fmt::format("Could not remove existing directory at {}, {:s}", workpath, ec.message())));
       }
 
       if (!std::filesystem::create_directory(workpath)) {
-        return std::unexpected(Error(Error::IO_ERROR, fmt::format("Could not create directory at {:s}", workpath.string())));
+        return std::unexpected(Error(Error::IO_ERROR, fmt::format("Could not create directory at {}", workpath)));
       }
-      log::info("Created project directory {:s}", workpath.string());
+      log::info("Created project directory {}", workpath);
       return workpath;
     }
 
@@ -49,7 +49,7 @@ namespace file_ops {
     }
 
 
-    log::info("Using project directory {:s}", workpath.string());
+    log::info("Using project directory {}", workpath);
     return workpath;
   }
 
@@ -61,16 +61,16 @@ namespace file_ops {
         file_directory += "/";
         file_directory += file.filepath.parent_path();
         if (!std::filesystem::exists(file_directory) && !std::filesystem::create_directories(file_directory))
-          return std::unexpected(Error(Error::IO_ERROR, fmt::format("Couldn't create directories for path {:s}", file_directory.string())));
+          return std::unexpected(Error(Error::IO_ERROR, fmt::format("Couldn't create directories for path {}", file_directory)));
       }
       filepath += "/";
       filepath += file.filepath;
       std::ofstream output(filepath);
       output << file.contents;
       if (output.fail() || output.bad())
-        return std::unexpected(Error(Error::WRITE_ERROR, fmt::format("Failed writing {:s}", filepath.string())));
+        return std::unexpected(Error(Error::WRITE_ERROR, fmt::format("Failed writing {}", filepath)));
 
-      log::info("Wrote {}", filepath.string());
+      log::info("Wrote {}", filepath);
     }
     return {};
   }
@@ -84,7 +84,7 @@ namespace file_ops {
     auto directory = full_path;
     directory.remove_filename();
     if (!std::filesystem::exists(directory) && !std::filesystem::create_directory(directory))
-      return std::unexpected(Error(Error::IO_ERROR, fmt::format("Failed creating directory {:s}", directory.string())));
+      return std::unexpected(Error(Error::IO_ERROR, fmt::format("Failed creating directory {}", directory)));
 
     std::ofstream output(full_path);
     if (!output.is_open())
@@ -105,9 +105,9 @@ namespace file_ops {
     output << "}";
 
     if (output.fail() || output.bad())
-      return std::unexpected(Error(Error::WRITE_ERROR, fmt::format("Failed writing {:s}", full_path.string())));
+      return std::unexpected(Error(Error::WRITE_ERROR, fmt::format("Failed writing {}", full_path)));
 
-    log::info("Wrote {:s}", full_path.string());
+    log::info("Wrote {}", full_path);
     return {};
   }
 
@@ -120,7 +120,7 @@ namespace file_ops {
         output << static_cast<char>(bake_in_clang_format[i]);
       if (output.bad() || output.fail())
         return std::unexpected(Error(Error::WRITE_ERROR, "Failed writing .clang-format"));
-      log::info("Wrote {:s}", filepath.string());
+      log::info("Wrote {}", filepath);
     }
     if (default_files & DefaultFiles::GERSEMIRC) {
       auto filepath = workpath;
@@ -130,7 +130,7 @@ namespace file_ops {
         output << static_cast<char>(bake_in_gersemirc[i]);
       if (output.bad() || output.fail())
         return std::unexpected(Error(Error::WRITE_ERROR, "Failed writing .gersemirc"));
-      log::info("Wrote {:s}", filepath.string());
+      log::info("Wrote {}", filepath);
     }
     if (default_files & DefaultFiles::GITIGNORE) {
       auto filepath = workpath;
@@ -140,7 +140,7 @@ namespace file_ops {
         output << static_cast<char>(bake_in_gitignore[i]);
       if (output.bad() || output.fail())
         return std::unexpected(Error(Error::WRITE_ERROR, "Failed writing .gitignore"));
-      log::info("Wrote {:s}", filepath.string());
+      log::info("Wrote {}", filepath);
     }
     return {};
   }
@@ -161,17 +161,16 @@ namespace file_ops {
     log::info("Found {:s} to run formatting", CMAKE_FORMATTER);
 
     std::optional<Error> failed = std::nullopt;
-    std::string path = workpath.string();
     std::for_each(
             std::execution::parallel_policy(),
             files.begin(), files.end(),
-            [&path, &CMAKE_FORMATTER, &failed](const CMakeListsGenerator::CMakeFile& file) {
-              std::string filepath = file.filepath.string();
-              if (std::system(fmt::format("cd {:s} && {:s} -i {:s}", path, CMAKE_FORMATTER, filepath).c_str())) {
-                failed = Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {:s}", filepath, CMAKE_FORMATTER));
+            [&workpath, &CMAKE_FORMATTER, &failed](const CMakeListsGenerator::CMakeFile& file) {
+              auto filepath = file.filepath.string();
+              if (std::system(fmt::format("cd {} && {:s} -i {}", workpath, CMAKE_FORMATTER, filepath).c_str())) {
+                failed = Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {}", filepath, CMAKE_FORMATTER));
                 return;
               }
-              log::info("Formatted {:s}/{:s}", path, filepath);
+              log::info("Formatted {}/{}", workpath, filepath);
             });
 
     if (failed.has_value())
@@ -184,10 +183,10 @@ namespace file_ops {
     constexpr const char* SOURCE_FORMATTER = "clang-format";
     TRY(check_command_exists(SOURCE_FORMATTER));
     log::info("Found {:s} to run formatting", SOURCE_FORMATTER);
-    if (std::system(fmt::format("cd {:s} && {:s} -i {:s}", workpath.string(), SOURCE_FORMATTER, source_path).c_str()))
+    if (std::system(fmt::format("cd {} && {:s} -i {:s}", workpath, SOURCE_FORMATTER, source_path).c_str()))
       return std::unexpected(Error(Error::EXEC_ERROR, fmt::format("Could not format {:s} using {:s}", source_path, SOURCE_FORMATTER)));
 
-    log::info("Formatted {:s}/{:s}", workpath.string(), source_path);
+    log::info("Formatted {}/{:s}", workpath, source_path);
     return {};
   }
 }// namespace file_ops
