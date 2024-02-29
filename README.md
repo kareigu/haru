@@ -21,7 +21,7 @@ ___
 - [X] Add dependencies at project creation time
 - [X] Add dependencies at project creation time
 - [X] Initialise git repository after project creation
-- [ ] Initialise CMake after project creation
+- [X] Initialise CMake after project creation
 
 ___
 
