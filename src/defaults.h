@@ -6,7 +6,7 @@ namespace haru {
 constexpr const char* DEFAULT_CMAKE_VERSION = "3.28";
 constexpr const char* DEFAULT_VERSION = "0.1.0";
 constexpr const char* DEFAULT_LANGUAGES = "cpp";
-constexpr std::array<const char*, 2> DEFAULT_STD_VERSIONS{{"23", "11"}};
+constexpr std::array<const char*, 2> DEFAULT_STD_VERSIONS{{"23", "17"}};
 constexpr const char* DEFAULT_ENTRY_POINT = "src/main";
 constexpr DefaultFiles_t DEFAULT_FILES = DefaultFiles::ALL;
 constexpr bool DEFAULT_ADD_DEPENDENCIES = true;

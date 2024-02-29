@@ -51,7 +51,7 @@ After this `haru` will ask you for input about project settings:
 | CMake version        | Minimum CMake version. Defaults to 3.28                              |
 | Version              | Project version string. Defaults to 0.1.0                            |
 | Languages            | Languages to use for project. Allows C, C++ or both. Defaults to C++ |
-| Standard             | Standard library editions. Defaults to C++23 and C11                 |
+| Standard             | Standard library editions. Defaults to C++23 and C17                 |
 | Entrypoint           | Entrypoint for the project. Defaults to `src/main.{c\|cpp}`          |
 | Default files        | Default files to include, .clang-format etc. Defaults to all         |
 | Default dependencies | Whether to add default dependencies. Defaults to yes                 |
