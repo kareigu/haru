@@ -26,6 +26,8 @@ namespace file_ops {
       if (std::filesystem::exists(workpath)) {
         if (!overwrite)
           return std::unexpected(Error(
+                  Error::ALREADY_EXISTS,
+                  fmt::format("{:s} already exists at {}. Use '--force' to overwrite", name, workpath)));
 
         std::error_code ec;
         std::filesystem::remove_all(workpath, ec);
