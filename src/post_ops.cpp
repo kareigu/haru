@@ -42,8 +42,8 @@ std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpa
     return {};
   }
   log::info("Found {:s} in path", CMAKE_COMMAND);
-  bool init_git = use_defaults ? true : TRY(prompt_yes_no("Initialise cmake?", true));
-  if (!init_git) {
+  bool init_cmake = use_defaults ? true : TRY(prompt_yes_no("Initialise cmake?", true));
+  if (!init_cmake) {
     return {};
   }
 
