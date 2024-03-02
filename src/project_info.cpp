@@ -101,7 +101,7 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
 }
 
 std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info, bool use_defaults) {
-  auto default_dependencies = DEFAULT_DEPENDENCIES(project_info.standard[ProjectInfo::CPP_INDEX].c_str());
+  auto default_dependencies = DEFAULT_DEPENDENCIES(project_info.standard[ProjectInfo::CPP_INDEX]);
   std::stringstream defaults_formatted;
   size_t last_index = default_dependencies.size() - 1;
   for (size_t i = 0; i < last_index; i++)
