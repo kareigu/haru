@@ -13,59 +13,65 @@
 #include <vector>
 
 namespace haru {
-std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info);
+std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info, bool use_defaults);
 
 std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t flags, std::optional<std::string> default_name) {
   ProjectInfo project_info;
-  auto default_std_versions = DEFAULT_STD_VERSIONS;
-  if (flags & Command::Flags::USE_DEFAULTS) {
-    auto default_dependencies = DEFAULT_DEPENDENCIES(default_std_versions[ProjectInfo::CPP_INDEX]);
-    if (default_name.has_value())
-      project_info.name = default_name.value();
-    else
-      project_info.name = TRY(prompt<std::string>("Project name"));
-    project_info.cmake_version = DEFAULT_CMAKE_VERSION;
-    project_info.version = DEFAULT_VERSION;
-    project_info.languages = Language::CPP;
-    project_info.standard[ProjectInfo::CPP_INDEX] = default_std_versions[ProjectInfo::CPP_INDEX];
-    project_info.standard[ProjectInfo::C_INDEX] = default_std_versions[ProjectInfo::C_INDEX];
-    project_info.entry_point = fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT);
-    project_info.default_files = DEFAULT_FILES;
-    project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
-    return project_info;
-  }
-  project_info.name = TRY(prompt<std::string>("Project name", default_name));
-  project_info.cmake_version = TRY(prompt<std::string>("Minimum CMake version", DEFAULT_CMAKE_VERSION));
-  project_info.version = TRY(prompt<std::string>("Version", DEFAULT_VERSION));
+  bool use_defaults = flags & Command::Flags::USE_DEFAULTS;
 
-  std::vector<std::string> input_languages = TRY(prompt_list<std::string>(
-          "Languages",
-          std::vector<std::string>{Language::to_string(Language::CPP), Language::to_string(Language::C)},
-          std::vector<std::string>{Language::to_string(Language::CPP)}));
+  project_info.name = use_defaults && default_name.has_value()
+                            ? default_name.value()
+                            : TRY(prompt<std::string>("Project name", default_name));
+  project_info.cmake_version = use_defaults
+                                     ? DEFAULT_CMAKE_VERSION
+                                     : TRY(prompt<std::string>("Minimum CMake version", DEFAULT_CMAKE_VERSION));
+  project_info.version = use_defaults
+                               ? DEFAULT_VERSION
+                               : TRY(prompt<std::string>("Version", DEFAULT_VERSION));
+
+  std::vector<std::string> default_languages{DEFAULT_LANGUAGES};
+  std::vector<std::string> input_languages = use_defaults
+                                                   ? default_languages
+                                                   : TRY(prompt_list<std::string>(
+                                                           "Languages",
+                                                           std::vector<std::string>{
+                                                                   Language::to_string(Language::CPP),
+                                                                   Language::to_string(Language::C)},
+                                                           default_languages));
   for (const auto& language : input_languages) {
     if (language == Language::to_string(Language::CPP)) {
       project_info.languages |= Language::CPP;
-      std::string standard = TRY(prompt<std::string>("C++-standard", default_std_versions[ProjectInfo::CPP_INDEX]));
+      std::string default_standard = DEFAULT_STD_VERSIONS[ProjectInfo::CPP_INDEX];
+      std::string standard = use_defaults
+                                   ? default_standard
+                                   : TRY(prompt<std::string>("C++-standard", default_standard));
       project_info.standard[ProjectInfo::CPP_INDEX] = standard;
     }
     if (language == Language::to_string(Language::C)) {
       project_info.languages |= Language::C;
-      std::string standard = TRY(prompt<std::string>("C-standard", default_std_versions[ProjectInfo::C_INDEX]));
+      std::string default_standard = DEFAULT_STD_VERSIONS[ProjectInfo::C_INDEX];
+      std::string standard = use_defaults
+                                   ? default_standard
+                                   : TRY(prompt<std::string>("C-standard", default_standard));
       project_info.standard[ProjectInfo::C_INDEX] = standard;
     }
   }
   if (project_info.languages == Language::NONE)
     return std::unexpected(Error(Error::INPUT_ERROR, "You need select at least 1 valid language"));
 
-  std::string default_entry_point = project_info.languages & Language::CPP ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT) : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
-  project_info.entry_point = TRY(prompt<std::string>("Entrypoint", default_entry_point));
+  std::string default_entry_point = project_info.languages & Language::CPP
+                                          ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT)
+                                          : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
+  project_info.entry_point = use_defaults ? default_entry_point : TRY(prompt<std::string>("Entrypoint", default_entry_point));
 
   std::vector<std::string> default_files = {
           DefaultFiles::to_string(DefaultFiles::CLANG_FORMAT),
           DefaultFiles::to_string(DefaultFiles::GERSEMIRC),
           DefaultFiles::to_string(DefaultFiles::GITIGNORE),
   };
-  std::vector<std::string> input_default_files = TRY(prompt_list<std::string>("Default files", default_files, default_files));
+  std::vector<std::string> input_default_files = use_defaults
+                                                       ? std::move(default_files)
+                                                       : TRY(prompt_list<std::string>("Default files", default_files, default_files));
   for (const auto& file : input_default_files) {
     if (file == DefaultFiles::to_string(DefaultFiles::CLANG_FORMAT)) {
       project_info.default_files |= DefaultFiles::CLANG_FORMAT;
@@ -81,9 +87,9 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
     }
   }
 
-  bool add_dependencies = TRY(prompt_yes_no("Add dependencies?", DEFAULT_ADD_DEPENDENCIES));
+  bool add_dependencies = use_defaults ? DEFAULT_ADD_DEPENDENCIES : TRY(prompt_yes_no("Add dependencies?", DEFAULT_ADD_DEPENDENCIES));
   if (add_dependencies) {
-    TRY(handle_adding_dependencies(project_info));
+    TRY(handle_adding_dependencies(project_info, use_defaults));
   }
 
   log::info("\nCurrent settings:\n{}", project_info);
@@ -94,7 +100,7 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
   return project_info;
 }
 
-std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info) {
+std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info, bool use_defaults) {
   auto default_dependencies = DEFAULT_DEPENDENCIES(project_info.standard[ProjectInfo::CPP_INDEX].c_str());
   std::stringstream defaults_formatted;
   size_t last_index = default_dependencies.size() - 1;
@@ -104,12 +110,17 @@ std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info)
     defaults_formatted << default_dependencies[last_index].name;
 
 
-  auto add_defaults = TRY(prompt_yes_no(
-          fmt::format("Add default dependencies? [{}]", defaults_formatted.str()).c_str(),
-          DEFAULT_ADD_DEPENDENCIES));
+  bool add_defaults = use_defaults
+                            ? DEFAULT_ADD_DEPENDENCIES
+                            : TRY(prompt_yes_no(
+                                    fmt::format(
+                                            "Add default dependencies? [{}]",
+                                            defaults_formatted.str())
+                                            .c_str(),
+                                    DEFAULT_ADD_DEPENDENCIES));
 
   if (add_defaults) {
-    log::info("Adding defaul dependencies");
+    log::info("Adding default dependencies");
     project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
   }
 
