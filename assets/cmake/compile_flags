@@ -43,7 +43,7 @@ function(add_project_compile_flags project_name)
 
     if(WIN32)
         set(WARNINGS_CXX
-            ${output}
+            ${WARNINGS_CXX}
             -fansi-escape-codes
         )
     endif()
