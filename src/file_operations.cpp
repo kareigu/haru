@@ -8,7 +8,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
-#include <execution>
+#ifdef _WIN32
+  #include <execution>
+#endif
 #include <expected>
 #include <filesystem>
 #include <fmt/core.h>
@@ -164,7 +166,9 @@ namespace file_ops {
 
     std::optional<Error> failed = std::nullopt;
     std::for_each(
+#ifdef _WIN32
             std::execution::parallel_policy(),
+#endif
             files.begin(), files.end(),
             [&workpath, &failed](const CMakeListsGenerator::CMakeFile& file) {
               auto filepath = file.filepath.string();
