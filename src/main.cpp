@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
             .source_path = project_info.entry_point};
     WARN(haru::file_ops::format_generated_files(workpath, format_generated_files_args));
 
-    MUST(haru::handle_post_ops(workpath, ran_command.flags & haru::Command::Flags::USE_DEFAULTS));
+    MUST(haru::handle_post_ops(workpath, project_info.languages, ran_command.flags & haru::Command::Flags::USE_DEFAULTS));
   }
 
   return EXIT_SUCCESS;
