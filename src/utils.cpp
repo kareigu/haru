@@ -10,7 +10,7 @@
 #include <string_view>
 
 namespace haru {
-std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line) {
+std::expected<bool, Error> prompt_yes_no(std::string_view text, bool default_value, bool new_line) {
   std::string default_formatted = fmt::format("({:c}/{:c})", default_value ? 'Y' : 'y', default_value ? 'n' : 'N');
   fmt::print("{:s} {:s}: ", text, default_formatted);
   if (new_line)

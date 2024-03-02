@@ -149,7 +149,7 @@ empty_defaults:
   return ret;
 }
 
-std::expected<bool, Error> prompt_yes_no(const char* text, bool default_value, bool new_line = false);
+std::expected<bool, Error> prompt_yes_no(std::string_view text, bool default_value, bool new_line = false);
 
 std::expected<void, Error> check_command_exists(const std::string_view command, const std::string_view flags = "--version");
 

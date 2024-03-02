@@ -115,8 +115,7 @@ std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info,
                             : TRY(prompt_yes_no(
                                     fmt::format(
                                             "Add default dependencies? [{}]",
-                                            defaults_formatted.str())
-                                            .c_str(),
+                                            defaults_formatted.str()),
                                     DEFAULT_ADD_DEPENDENCIES));
 
   if (add_defaults) {
