@@ -71,6 +71,13 @@ to make the generated output better.
 - `gersemi`
   - Runs when `.gersemirc` is included in project initialisation.
   - Formats all generated CMake files during project setup.
+- `clang-format`
+  - Runs when `.clang-format` is included in project initialisation.
+  - Formats generated entry point source file.
+- `git`
+  - Optionally initialise a git repository after generation
+- `cmake`
+  - Optionally initialise the CMake project after generation
 
 ### 🛠 Building
 
@@ -79,4 +86,5 @@ For building requirements are:
 - C++23 compatible compiler. `clang >= 17.0` recommended.
 - `cmake` >= `3.27`
 - `xxd` is needed to generate `.cpp` files from the templates in [assets/](assets/).
+  - Requires support for C-style output
   - On Windows use <https://github.com/ckormanyos/xxd>.
