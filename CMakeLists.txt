@@ -6,7 +6,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/dependencies.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/tidy.cmake)
 include(FetchContent)
 
-project(haru VERSION 0.2.0 LANGUAGES CXX)
+project(haru VERSION 0.3.0 LANGUAGES CXX)
 set(NINJA_MULTICONFIG (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config"))
 
 fetch_project_dependencies()
