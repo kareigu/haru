@@ -2,14 +2,12 @@
 #include "error.h"
 #include <cstdlib>
 #include <expected>
-#include <optional>
-#include <vector>
-// NOLINTBEGIN(misc-include-cleaner): Wrong
 #include <fmt/core.h>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
-// NOLINTEND(misc-include-cleaner)
+#include <vector>
 
 #define TRY(EXPR) ({                           \
   auto&& _temp_ret = (EXPR);                   \
