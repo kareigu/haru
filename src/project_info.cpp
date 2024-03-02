@@ -101,32 +101,36 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
 }
 
 std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info, bool use_defaults) {
-  auto default_dependencies = DEFAULT_DEPENDENCIES(project_info.standard[ProjectInfo::CPP_INDEX]);
-  std::stringstream defaults_formatted;
-  size_t last_index = default_dependencies.size() - 1;
-  for (size_t i = 0; i < last_index; i++)
-    defaults_formatted << fmt::format("{}, ", default_dependencies[i].name);
-  if (last_index >= 0)
-    defaults_formatted << default_dependencies[last_index].name;
-
-
-  bool add_defaults = use_defaults
-                            ? DEFAULT_ADD_DEPENDENCIES
-                            : TRY(prompt_yes_no(
-                                    fmt::format(
-                                            "Add default dependencies? [{}]",
-                                            defaults_formatted.str()),
-                                    DEFAULT_ADD_DEPENDENCIES));
-
+  auto default_dependencies = DEFAULT_DEPENDENCIES(project_info.standard[ProjectInfo::CPP_INDEX], project_info.languages);
+  bool add_defaults = !default_dependencies.empty();
   if (add_defaults) {
-    log::info("Adding default dependencies");
-    project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
+    std::stringstream defaults_formatted;
+    size_t last_index = default_dependencies.size() - 1;
+    for (size_t i = 0; i < last_index; i++)
+      defaults_formatted << fmt::format("{}, ", default_dependencies[i].name);
+    if (last_index >= 0)
+      defaults_formatted << default_dependencies[last_index].name;
+
+
+    if (!use_defaults)
+      add_defaults = TRY(prompt_yes_no(fmt::format("Add default dependencies? [{}]",
+                                                   defaults_formatted.str()),
+                                       DEFAULT_ADD_DEPENDENCIES));
+
+    if (add_defaults) {
+      log::info("Adding default dependencies");
+      project_info.dependencies = std::vector<Dependency>(default_dependencies.begin(), default_dependencies.end());
+    }
   }
 
+  bool prompt_more = add_defaults;
   while (true) {
-    bool add_dependency = TRY(prompt_yes_no("Add more dependencies?", !add_defaults));
-    if (!add_dependency)
-      return {};
+    if (prompt_more) {
+      bool add_dependency = TRY(prompt_yes_no(fmt::format("Add more dependencies?"), !add_defaults));
+      if (!add_dependency)
+        return {};
+    }
+    log::info("Dependency info:");
 
     Dependency dependency;
     std::string source_string = TRY(prompt<std::string>("source [git, local]", "git"));
@@ -161,6 +165,7 @@ std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info,
     }
 
     project_info.dependencies.push_back(dependency);
+    prompt_more = true;
   }
 
   return {};
