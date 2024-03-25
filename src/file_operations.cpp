@@ -128,7 +128,7 @@ namespace file_ops {
     }
     if (default_files & DefaultFiles::GERSEMIRC) {
       auto filepath = workpath;
-      filepath += "/.gersemirc.py";
+      filepath += "/.gersemirc";
       std::ofstream output(filepath);
       for (size_t i = 0; i < bake_in_gersemirc_len; i++)
         output << static_cast<char>(bake_in_gersemirc[i]);
