@@ -115,8 +115,14 @@ std::optional<std::string_view> get_available_c_compiler() {
 }
 
 std::optional<std::string_view> get_available_generator() {
-  static constexpr const char* DEFAULT_GENERATOR = "Ninja Multi-Config";
-  return DEFAULT_GENERATOR;
+  static constexpr const char* NINJA_MULTICONFIG = "Ninja Multi-Config";
+  static constexpr const char* MAKE = "Unix Makefiles";
+
+  if (check_command_exists("ninja").has_value())
+    return NINJA_MULTICONFIG;
+  if (check_command_exists("make").has_value())
+    return MAKE;
+  return std::nullopt;
 }
 
 }// namespace haru
