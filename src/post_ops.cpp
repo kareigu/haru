@@ -70,7 +70,7 @@ std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpa
       return std::unexpected(Error(Error::NOT_FOUND, "No valid C-compiler found in path"));
     std::string c_compiler = std::string(c_compiler_ret.value());
     if (!use_defaults)
-      c_compiler = TRY(prompt<std::string>("C++-compiler", c_compiler));
+      c_compiler = TRY(prompt<std::string>("C-compiler", c_compiler));
     cmake_flags << fmt::format(" -DCMAKE_C_COMPILER=\"{:s}\"", c_compiler);
   }
   cmake_flags << " -DCMAKE_EXPORT_COMPILE_COMMANDS=1";
