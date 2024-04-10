@@ -151,10 +151,10 @@ namespace file_ops {
 
   std::expected<void, Error> format_generated_files(const std::filesystem::path& workpath, FormatGeneratedFilesArgs args) noexcept {
     if (args.default_files & DefaultFiles::GERSEMIRC)
-      TRY(format_cmake_files(workpath, args.files));
+      WARN(format_cmake_files(workpath, args.files));
 
     if (args.default_files & DefaultFiles::CLANG_FORMAT)
-      TRY(format_source_files(workpath, args.source_path));
+      WARN(format_source_files(workpath, args.source_path));
 
     return {};
   }
