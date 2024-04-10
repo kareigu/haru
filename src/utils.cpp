@@ -19,9 +19,27 @@ std::expected<bool, Error> prompt_yes_no(std::string_view text, bool default_val
   std::string value_input;
   std::getline(std::cin, value_input);
 
+#if __FreeBSD__ && __FreeBSD__ < 15
+  size_t start = 0;
+  size_t end = value_input.size();
+  for (size_t i = 0; i < value_input.size(); i++) {
+    char& c = value_input[i];
+    if (c != ' ' && start == 0) {
+      start = i;
+      continue;
+    }
+    if (c == ' ' && start > 0) {
+      end = i;
+      break;
+    }
+  }
+
+  value_input = std::string(value_input.begin() + static_cast<long>(start), value_input.begin() + static_cast<long>(end));
+#else
   auto is_space = [](char c) { return c == ' '; };
   value_input = std::ranges::to<std::string>(value_input | std::views::drop_while(is_space) | std::views::reverse | std::views::drop_while(is_space) | std::views::reverse);
   std::transform(value_input.begin(), value_input.end(), value_input.begin(), [](char c) { return std::tolower(c); });
+#endif
 
   if (value_input.empty())
     return default_value;
