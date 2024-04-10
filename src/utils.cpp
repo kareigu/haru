@@ -10,6 +10,24 @@
 #include <string_view>
 
 namespace haru {
+
+template<>
+std::expected<std::string, Error> prompt(const char* text, std::optional<std::string> default_value, bool new_line) {
+  auto default_value_formatted = default_value.has_value() ? fmt::format(" ({})", default_value.value()) : "";
+  fmt::print("{:s}{:s}: ", text, default_value_formatted, new_line);
+  if (new_line)
+    fmt::println("");
+
+  std::string value_input;
+  std::getline(std::cin, value_input);
+  if (!default_value.has_value() && value_input.empty())
+    return std::unexpected(Error(Error::Type::NO_INPUT, fmt::format("{} needs to be given", text)));
+
+  if (default_value.has_value() && value_input.empty())
+    return default_value.value();
+  return value_input;
+}
+
 std::expected<bool, Error> prompt_yes_no(std::string_view text, bool default_value, bool new_line) {
   std::string default_formatted = fmt::format("({:c}/{:c})", default_value ? 'Y' : 'y', default_value ? 'n' : 'N');
   fmt::print("{:s} {:s}: ", text, default_formatted);
