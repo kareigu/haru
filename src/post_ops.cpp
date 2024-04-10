@@ -16,6 +16,7 @@ std::expected<void, Error> handle_git_init(const std::filesystem::path& workpath
 std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpath, Language_t languages, bool use_defaults);
 std::optional<std::string_view> get_available_cpp_compiler();
 std::optional<std::string_view> get_available_c_compiler();
+std::optional<std::string_view> get_available_generator();
 
 std::expected<void, Error> handle_post_ops(const std::filesystem::path& workpath, Language_t languages, bool use_defaults) {
   TRY(handle_git_init(workpath, use_defaults));
@@ -75,8 +76,12 @@ std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpa
   }
   cmake_flags << " -DCMAKE_EXPORT_COMPILE_COMMANDS=1";
 
-  static constexpr const char* DEFAULT_GENERATOR = "Ninja Multi-Config";
-  std::string generator = use_defaults ? DEFAULT_GENERATOR : TRY(prompt<std::string>("Build generator", DEFAULT_GENERATOR));
+  auto default_generator = get_available_generator();
+  std::string generator;
+  if (use_defaults && default_generator)
+    generator = default_generator.value();
+  else
+    generator = TRY(prompt<std::string>("Build generator", default_generator.transform([](std::string_view v) { return std::string(v); })));
   cmake_flags << " -G \"" << generator << '"';
 
   static constexpr const char* DEFAULT_DIR = "build";
@@ -107,6 +112,11 @@ std::optional<std::string_view> get_available_c_compiler() {
   if (check_command_exists(GCC).has_value())
     return GCC;
   return std::nullopt;
+}
+
+std::optional<std::string_view> get_available_generator() {
+  static constexpr const char* DEFAULT_GENERATOR = "Ninja Multi-Config";
+  return DEFAULT_GENERATOR;
 }
 
 }// namespace haru
