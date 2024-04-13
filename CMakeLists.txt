@@ -12,16 +12,16 @@ set(NINJA_MULTICONFIG (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config"))
 fetch_project_dependencies()
 
 set(PROJECT_SOURCES
-    src/main.cpp
-    src/project_info.cpp
     src/args_parser.cpp
-    src/error.cpp
-    src/command.cpp
-    src/utils.cpp
     src/cmake_lists_generator.cpp
+    src/command.cpp
+    src/error.cpp
     src/file_operations.cpp
     src/log.cpp
+    src/main.cpp
     src/post_ops.cpp
+    src/project_info.cpp
+    src/utils.cpp
 )
 add_bake_in_files()
 
