@@ -36,7 +36,7 @@ namespace arg_parse {
   std::expected<Command, Error> parse(int argc, char** argv) {
     try {
       s_prg.parse_args(argc, argv);
-    } catch (const std::exception& e) {
+    } catch (const std::runtime_error& e) {
       return std::unexpected(Error(Error::UNKNOWN_ERROR, e.what()));
     }
 
