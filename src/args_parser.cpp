@@ -62,6 +62,10 @@ namespace arg_parse {
   }
 
   std::string help_string() {
+    if (s_prg.is_subcommand_used(s_create_cmd))
+      return s_create_cmd.help().str();
+    if (s_prg.is_subcommand_used(s_init_cmd))
+      return s_init_cmd.help().str();
     return s_prg.help().str();
   }
 
