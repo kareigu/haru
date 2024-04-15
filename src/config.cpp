@@ -1,0 +1,197 @@
+#include "config.h"
+#include "command.h"
+#include "error.h"
+#include "log.h"
+#include "utils.h"
+#include <expected>
+#include <filesystem>
+#include <fmt/core.h>
+#include <fmt/std.h>
+#include <fstream>
+#include <pwd.h>
+#include <stdlib.h>
+#include <string_view>
+#include <unistd.h>
+#include <vector>
+
+namespace haru {
+const std::filesystem::path Config::get_global_config_path() {
+  const char* home = "";
+  if ((home = getenv("XDG_CONFIG_HOME")) == nullptr) {
+    if ((home = getenv("HOME")) == nullptr) {
+      home = getpwuid(getuid())->pw_dir;
+    }
+    auto path = std::filesystem::absolute(fmt::format("{:s}/.config/{:s}", home, CONFIG_FILE_NAME));
+    return path;
+  }
+  auto path = std::filesystem::absolute(fmt::format("{:s}/{:s}", home, CONFIG_FILE_NAME));
+  return path;
+}
+
+std::optional<const std::filesystem::path> Config::get_local_config_path() {
+  if (std::filesystem::exists(CONFIG_FILE_NAME))
+    return CONFIG_FILE_NAME;
+
+  std::filesystem::path current_path = std::filesystem::current_path();
+  while (current_path != "/") {
+    auto possible_config = fmt::format("{}/{:s}", current_path, CONFIG_FILE_NAME);
+    if (std::filesystem::exists(possible_config))
+      return possible_config;
+
+    if (!current_path.has_parent_path())
+      return std::nullopt;
+    current_path = current_path.parent_path();
+  }
+  return std::nullopt;
+}
+
+std::expected<Config::Config_t, Error> Config::get_global_config() {
+  auto path = get_global_config_path();
+  if (!std::filesystem::exists(path))
+    return default_config();
+  return get_config(path);
+}
+std::expected<Config::Config_t, Error> Config::get_local_config() {
+  auto path = get_local_config_path();
+  if (!path)
+    return default_config();
+  return get_config(path.value());
+}
+
+std::expected<Config::Config_t, Error> Config::get_config(const std::filesystem::path& path) {
+  std::ifstream ifstream(path);
+  return default_config();
+  return std::unexpected(Error(Error::UNKNOWN_ERROR, "Reading not implemented"));
+}
+
+std::expected<void, Error> Config::write_value(const std::string& key, const std::string& value, bool global) {
+  std::filesystem::path filepath;
+  if (global) {
+    filepath = get_global_config_path();
+  } else {
+    auto local = get_local_config_path();
+    if (!local)
+      return std::unexpected(Error(Error::NOT_FOUND, "Create a config file inside current project first"));
+    filepath = local.value();
+  }
+
+  std::ifstream read_file(filepath);
+  std::stringstream output;
+
+  std::string_view header;
+  std::string_view real_key;
+  if (!key.contains('.')) {
+    real_key = std::string_view(key);
+  } else {
+    long divider = static_cast<long>(key.find('.'));
+    header = std::string_view(key.begin(), key.begin() + divider);
+    real_key = std::string_view(key.begin() + divider + 1, key.end());
+  }
+
+  bool should_write_header = !header.empty();
+  bool under_correct_header = false;
+  bool wrote = false;
+  while (true) {
+    std::string line;
+    std::getline(read_file, line);
+
+    if (should_write_header && line.starts_with('[')) {
+      if (!wrote && under_correct_header) {
+        output << fmt::format("{:s}={:s}\n", real_key, value);
+        wrote = true;
+      }
+      long end = static_cast<long>(line.find(']', 1));
+      std::string_view line_header(line.begin() + 1, line.begin() + end);
+      if (line_header == header) {
+        log::debug("Found existing header: {:s}", line_header);
+        under_correct_header = true;
+      } else {
+        under_correct_header = false;
+      }
+    } else if (line.starts_with(fmt::format("{:s}=", real_key))) {
+      if (should_write_header) {
+        if (under_correct_header) {
+          output << fmt::format("{:s}={:s}\n", real_key, value);
+          should_write_header = false;
+        }
+      } else {
+        output << fmt::format("{:s}={:s}\n", real_key, value);
+      }
+      wrote = true;
+      continue;
+    }
+
+    output << line;
+    if (read_file.eof())
+      break;
+    output << '\n';
+  }
+
+  if (should_write_header) {
+    if (!under_correct_header)
+      output << fmt::format("[{:s}]\n", header);
+    output << fmt::format("{:s}={:s}\n", real_key, value);
+    wrote = true;
+  }
+
+  if (!wrote) {
+    std::string tmp = output.str();
+    output.seekp(0);
+    output << fmt::format("{:s}={:s}\n", real_key, value);
+    output << tmp;
+  }
+
+
+  std::ofstream write_file(filepath);
+  write_file << output.rdbuf();
+  write_file.close();
+  return {};
+}
+
+std::expected<void, Error> handle_config_command(const std::vector<std::string>& args, const Command::Flags_t flags) {
+  if (flags & Command::Flags::PATH) {
+    auto global_config = Config::get_global_config_path();
+    auto local_config = Config::get_local_config_path();
+    if (!std::filesystem::exists(global_config) && !local_config)
+      log::info("No configuration files found");
+    if (std::filesystem::exists(global_config))
+      log::info("Global config path: {}", global_config);
+    if (local_config)
+      log::info("Local config path: {}", local_config.value());
+    return {};
+  }
+
+  bool global = flags & Command::Flags::GLOBAL;
+  Config::Config_t config;
+  if (global)
+    config = TRY(Config::get_global_config());
+  else
+    config = TRY(Config::get_local_config());
+
+  if (args.empty())
+    return std::unexpected(Error(Error::NO_INPUT, "No key/value provided"));
+
+  const std::string& key = args[0];
+  if (args.size() == 1) {
+    log::info("{:s}", config[key]);
+    return {};
+  }
+  const std::string& value = args[1];
+
+  const std::string PREV_VALUE = config[key];
+  if (PREV_VALUE.empty())
+    log::info("Setting {:s} to {:s}", key, value);
+  else
+    log::info("Setting {:s} from {:s} to {:s}", key, PREV_VALUE, value);
+  TRY(Config::write_value(key, value, global));
+  return {};
+}
+
+Config::Config_t Config::default_config() {
+  return {
+          {"cmake.cxx_compiler", "clang++"},
+          {"cmake.c_compiler", "clang"},
+          {"cmake.generator", "Ninja Multi-Config"},
+  };
+}
+}// namespace haru

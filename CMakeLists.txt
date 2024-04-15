@@ -15,6 +15,7 @@ set(PROJECT_SOURCES
     src/args_parser.cpp
     src/cmake_lists_generator.cpp
     src/command.cpp
+    src/config.cpp
     src/error.cpp
     src/file_operations.cpp
     src/log.cpp

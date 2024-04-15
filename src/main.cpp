@@ -1,6 +1,7 @@
 #include "args_parser.h"
 #include "cmake_lists_generator.h"
 #include "command.h"
+#include "config.h"
 #include "error.h"
 #include "file_operations.h"
 #include "log.h"
@@ -61,6 +62,8 @@ int main(int argc, char** argv) {
     WARN(haru::file_ops::format_generated_files(workpath, format_generated_files_args));
 
     MUST(haru::handle_post_ops(workpath, project_info.languages, ran_command.flags & haru::Command::Flags::USE_DEFAULTS));
+  } else if (ran_command.type == haru::Command::CONFIG) {
+    MUST(haru::handle_config_command(ran_command.args, ran_command.flags));
   }
 
   return EXIT_SUCCESS;
