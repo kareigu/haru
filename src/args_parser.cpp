@@ -3,9 +3,11 @@
 #include "common.h"
 #include "error.h"
 #include <argparse/argparse.hpp>
-#include <exception>
 #include <expected>
+#include <sstream>
+#include <stdexcept>
 #include <string>
+#include <vector>
 
 constexpr const char* EPILOG = HARU_PRG_NAME " v" HARU_VERSION " - " RELEASE_TYPE;
 
@@ -15,6 +17,7 @@ namespace arg_parse {
   static argparse::ArgumentParser s_prg(HARU_PRG_NAME, HARU_VERSION);
   static argparse::ArgumentParser s_create_cmd("create", HARU_VERSION);
   static argparse::ArgumentParser s_init_cmd("init", HARU_VERSION);
+  static argparse::ArgumentParser s_config_cmd("config", HARU_VERSION);
 
   void init() {
     s_prg.add_description("Generate CMake projects for C/C++");
@@ -28,8 +31,26 @@ namespace arg_parse {
     s_init_cmd.add_argument("-d", "--use-defaults").flag().help("Use defaults for all fields");
     s_init_cmd.add_argument("-f", "--force").flag();
 
+    s_config_cmd.add_description("Access configuration options");
+    s_config_cmd
+            .add_argument("key")
+            .nargs(0, 1)
+            .help("Key of configuration value to access");
+    s_config_cmd
+            .add_argument("value")
+            .remaining()
+            .nargs(0, 1)
+            .help("Value to set to accessed configuration key");
+    s_config_cmd.add_argument("-g", "--global")
+            .flag()
+            .help("Affect global configuration rather than project specific ones");
+    s_config_cmd.add_argument("-p", "--path")
+            .flag()
+            .help("Print out the paths to currently affecting config files");
+
     s_prg.add_subparser(s_create_cmd);
     s_prg.add_subparser(s_init_cmd);
+    s_prg.add_subparser(s_config_cmd);
   }
 
 
@@ -46,7 +67,7 @@ namespace arg_parse {
         flags |= Command::Flags::USE_DEFAULTS;
       if (s_create_cmd.get<bool>("-f"))
         flags |= Command::Flags::FORCE;
-      return Command{.type = Command::CREATE, .flags = flags};
+      return Command{.type = Command::CREATE, .flags = flags, .args = {}};
     }
 
     if (s_prg.is_subcommand_used(s_init_cmd)) {
@@ -54,7 +75,22 @@ namespace arg_parse {
         flags |= Command::Flags::USE_DEFAULTS;
       if (s_init_cmd.get<bool>("-f"))
         flags |= Command::Flags::FORCE;
-      return Command{.type = Command::INIT, .flags = flags};
+      return Command{.type = Command::INIT, .flags = flags, .args = {}};
+    }
+
+    if (s_prg.is_subcommand_used(s_config_cmd)) {
+      if (s_config_cmd.get<bool>("-g"))
+        flags |= Command::Flags::GLOBAL;
+      if (s_config_cmd.get<bool>("-p"))
+        flags |= Command::Flags::PATH;
+      std::vector<std::string> args;
+      try {
+        args.push_back(s_config_cmd.get("key"));
+        args.push_back(s_config_cmd.get("value"));
+      } catch (const std::logic_error& e) {}
+      if (args.empty() && !(flags & Command::Flags::PATH))
+        return std::unexpected(Error(Error::NO_INPUT, "No key/value provided"));
+      return Command{.type = Command::CONFIG, .flags = flags, .args = args};
     }
 
 
@@ -66,6 +102,8 @@ namespace arg_parse {
       return s_create_cmd.help().str();
     if (s_prg.is_subcommand_used(s_init_cmd))
       return s_init_cmd.help().str();
+    if (s_prg.is_subcommand_used(s_config_cmd))
+      return s_config_cmd.help().str();
     return s_prg.help().str();
   }
 
