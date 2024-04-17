@@ -199,10 +199,10 @@ std::expected<void, Error> Config::write_value(const std::string& key, const std
   return {};
 }
 
-std::expected<void, Error> handle_config_command(const std::vector<std::string>& args, const Command::Flags_t flags) {
+std::expected<void, Error> Config::handle_config_command(const std::vector<std::string>& args, const Command::Flags_t flags) {
   if (flags & Command::Flags::PATH) {
     auto global_config = Config::get_global_config_path();
-    auto local_config = Config::get_local_config_path();
+    auto local_config = get_local_config_path();
     if (!std::filesystem::exists(global_config) && !local_config)
       log::info("No configuration files found");
     if (std::filesystem::exists(global_config))
@@ -213,11 +213,11 @@ std::expected<void, Error> handle_config_command(const std::vector<std::string>&
   }
 
   bool global = flags & Command::Flags::GLOBAL;
-  Config::Config_t config;
+  Config_t config;
   if (global)
-    config = TRY(Config::get_global_config());
+    config = TRY(get_global_config());
   else
-    config = TRY(Config::get_local_config());
+    config = TRY(get_local_config());
 
   if (args.empty())
     return std::unexpected(Error(Error::NO_INPUT, "No key/value provided"));
@@ -234,7 +234,7 @@ std::expected<void, Error> handle_config_command(const std::vector<std::string>&
     log::info("Setting {:s} to {:s}", key, value);
   else
     log::info("Setting {:s} from {:s} to {:s}", key, PREV_VALUE, value);
-  TRY(Config::write_value(key, value, global));
+  TRY(write_value(key, value, global));
   return {};
 }
 

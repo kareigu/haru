@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
 
     MUST(haru::handle_post_ops(workpath, project_info.languages, ran_command.flags & haru::Command::Flags::USE_DEFAULTS));
   } else if (ran_command.type == haru::Command::CONFIG) {
-    MUST(haru::handle_config_command(ran_command.args, ran_command.flags));
+    MUST(haru::Config::handle_config_command(ran_command.args, ran_command.flags));
   }
 
   return EXIT_SUCCESS;
