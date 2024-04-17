@@ -93,6 +93,8 @@ std::expected<Config::Config_t, Error> Config::get_config(const std::filesystem:
       break;
     }
 
+    if (line.empty() || line == "\n" || line == "\n\r")
+      continue;
     return std::unexpected(Error(
             Error::CONFIG_ERROR,
             fmt::format("Invalid configuration value at line {:d}: '{:s}'", current_line, line)));
