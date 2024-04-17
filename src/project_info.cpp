@@ -1,5 +1,6 @@
 #include "project_info.h"
 #include "command.h"
+#include "config.h"
 #include "defaults.h"
 #include "error.h"
 #include "log.h"
@@ -22,26 +23,30 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
   project_info.name = use_defaults && default_name.has_value()
                             ? default_name.value()
                             : TRY(prompt<std::string>("Project name", default_name));
-  project_info.cmake_version = use_defaults
-                                     ? DEFAULT_CMAKE_VERSION
-                                     : TRY(prompt<std::string>("Minimum CMake version", DEFAULT_CMAKE_VERSION));
-  project_info.version = use_defaults
-                               ? DEFAULT_VERSION
-                               : TRY(prompt<std::string>("Version", DEFAULT_VERSION));
 
-  std::vector<std::string> default_languages{DEFAULT_LANGUAGES};
+  std::string default_cmake_version = TRY(Config::get_value("project.cmake_version"));
+  project_info.cmake_version = use_defaults
+                                     ? default_cmake_version
+                                     : TRY(prompt<std::string>("Minimum CMake version", default_cmake_version));
+
+  std::string default_version = TRY(Config::get_value("project.version"));
+  project_info.version = use_defaults
+                               ? default_version
+                               : TRY(prompt<std::string>("Version", default_version));
+
+  std::vector<std::string> default_languages{TRY(Config::get_value("project.languages"))};
   std::vector<std::string> input_languages = use_defaults
                                                    ? default_languages
                                                    : TRY(prompt_list<std::string>(
-                                                           "Languages",
-                                                           std::vector<std::string>{
-                                                                   Language::to_string(Language::CPP),
-                                                                   Language::to_string(Language::C)},
-                                                           default_languages));
+                                                             "Languages",
+                                                             std::vector<std::string>{
+                                                                     Language::to_string(Language::CPP),
+                                                                     Language::to_string(Language::C)},
+                                                             default_languages));
   for (const auto& language : input_languages) {
     if (language == Language::to_string(Language::CPP)) {
       project_info.languages |= Language::CPP;
-      std::string default_standard = DEFAULT_STD_VERSIONS[ProjectInfo::CPP_INDEX];
+      std::string default_standard = TRY(Config::get_value("project.cpp_std"));
       std::string standard = use_defaults
                                    ? default_standard
                                    : TRY(prompt<std::string>("C++-standard", default_standard));
@@ -49,7 +54,7 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
     }
     if (language == Language::to_string(Language::C)) {
       project_info.languages |= Language::C;
-      std::string default_standard = DEFAULT_STD_VERSIONS[ProjectInfo::C_INDEX];
+      std::string default_standard = TRY(Config::get_value("project.c_std"));
       std::string standard = use_defaults
                                    ? default_standard
                                    : TRY(prompt<std::string>("C-standard", default_standard));
@@ -60,8 +65,8 @@ std::expected<ProjectInfo, Error> ProjectInfo::parse_from_input(Command::Flags_t
     return std::unexpected(Error(Error::INPUT_ERROR, "You need select at least 1 valid language"));
 
   std::string default_entry_point = project_info.languages & Language::CPP
-                                          ? fmt::format("{:s}.cpp", DEFAULT_ENTRY_POINT)
-                                          : fmt::format("{:s}.c", DEFAULT_ENTRY_POINT);
+                                          ? fmt::format("{:s}.cpp", TRY(Config::get_value("project.entry_point")))
+                                          : fmt::format("{:s}.c", TRY(Config::get_value("project.entry_point")));
   project_info.entry_point = use_defaults ? default_entry_point : TRY(prompt<std::string>("Entrypoint", default_entry_point));
 
   std::vector<std::string> default_files = {

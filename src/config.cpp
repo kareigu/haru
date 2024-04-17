@@ -268,6 +268,12 @@ std::expected<std::string, Error> Config::get_value(const std::string_view key) 
 
 Config::Config_t Config::default_config() {
   return {
+          {"project.cmake_version", "3.28"},
+          {"project.version", "0.1.0"},
+          {"project.languages", "cpp"},
+          {"project.entry_point", "src/main"},
+          {"project.cpp_std", "23"},
+          {"project.c_std", "17"},
           {"cmake.cxx_compiler", "clang++"},
           {"cmake.c_compiler", "clang"},
           {"cmake.generator", "Ninja Multi-Config"},
