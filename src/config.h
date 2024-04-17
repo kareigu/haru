@@ -12,6 +12,7 @@ class Config {
 public:
   using Config_t = std::map<std::string, std::string>;
   [[nodiscard("Handle error")]] static std::expected<void, Error> handle_config_command(const std::vector<std::string>& args, const Command::Flags_t flags);
+  [[nodiscard("Handle error")]] static std::expected<std::string, Error> get_value(const std::string_view key);
 
 private:
   [[nodiscard]] static const std::filesystem::path get_global_config_path();

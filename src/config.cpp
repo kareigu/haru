@@ -238,6 +238,34 @@ std::expected<void, Error> Config::handle_config_command(const std::vector<std::
   return {};
 }
 
+std::expected<std::string, Error> Config::get_value(const std::string_view key) {
+  static Config_t local_config;
+  static Config_t global_config;
+  static Config_t default_config;
+  bool initialised = false;
+  if (!initialised) {
+    local_config = TRY(get_local_config());
+    global_config = TRY(get_global_config());
+    default_config = Config::default_config();
+    initialised = true;
+  }
+
+  std::string k(key);
+
+  if (!local_config[k].empty())
+    return local_config[k];
+
+  if (!global_config[k].empty())
+    return global_config[k];
+
+  if (!default_config[k].empty())
+    return default_config[k];
+
+  return std::unexpected(Error(
+          Error::CONFIG_ERROR,
+          fmt::format("No config value available for {:s}", key)));
+}
+
 Config::Config_t Config::default_config() {
   return {
           {"cmake.cxx_compiler", "clang++"},
