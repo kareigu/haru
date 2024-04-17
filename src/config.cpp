@@ -78,69 +78,67 @@ std::expected<void, Error> Config::write_value(const std::string& key, const std
   std::ifstream read_file(filepath);
   std::stringstream output;
 
-  std::string_view header;
+  std::string_view input_header;
   std::string_view real_key;
   if (!key.contains('.')) {
     real_key = std::string_view(key);
   } else {
     long divider = static_cast<long>(key.find('.'));
-    header = std::string_view(key.begin(), key.begin() + divider);
+    input_header = std::string_view(key.begin(), key.begin() + divider);
     real_key = std::string_view(key.begin() + divider + 1, key.end());
   }
 
-  bool should_write_header = !header.empty();
-  bool under_correct_header = false;
+  bool under_correct_header = input_header.empty();
   bool wrote = false;
   while (true) {
     std::string line;
     std::getline(read_file, line);
 
-    if (should_write_header && line.starts_with('[')) {
+    if (wrote) {
+      goto writing_dump_current_line;
+    }
+
+    if (line.starts_with('[')) {
       if (!wrote && under_correct_header) {
+        log::debug("writing {:s}", real_key);
         output << fmt::format("{:s}={:s}\n", real_key, value);
         wrote = true;
       }
       long end = static_cast<long>(line.find(']', 1));
       std::string_view line_header(line.begin() + 1, line.begin() + end);
-      if (line_header == header) {
+      if (line_header == input_header) {
         log::debug("Found existing header: {:s}", line_header);
         under_correct_header = true;
       } else {
         under_correct_header = false;
       }
     } else if (line.starts_with(fmt::format("{:s}=", real_key))) {
-      if (should_write_header) {
+      if (!input_header.empty()) {
         if (under_correct_header) {
           output << fmt::format("{:s}={:s}\n", real_key, value);
-          should_write_header = false;
+          wrote = true;
+          continue;
         }
       } else {
         output << fmt::format("{:s}={:s}\n", real_key, value);
+        wrote = true;
+        continue;
       }
-      wrote = true;
-      continue;
     }
 
+  writing_dump_current_line:
     output << line;
     if (read_file.eof())
       break;
     output << '\n';
   }
 
-  if (should_write_header) {
+  if (!wrote && !input_header.empty()) {
     if (!under_correct_header)
-      output << fmt::format("[{:s}]\n", header);
+      output << fmt::format("[{:s}]\n", input_header);
     output << fmt::format("{:s}={:s}\n", real_key, value);
     wrote = true;
   }
-
-  if (!wrote) {
-    std::string tmp = output.str();
-    output.seekp(0);
-    output << fmt::format("{:s}={:s}\n", real_key, value);
-    output << tmp;
-  }
-
 
   std::ofstream write_file(filepath);
   write_file << output.rdbuf();
