@@ -171,12 +171,12 @@ std::expected<void, Error> Config::write_value(const std::string& key, const std
       break;
     output << '\n';
   }
+  read_file.close();
 
   if (!wrote && !input_header.empty()) {
     if (!under_correct_header)
       output << fmt::format("[{:s}]\n", input_header);
     output << fmt::format("{:s}={:s}\n", real_key, value);
-    wrote = true;
   }
 
   std::ofstream write_file(filepath);
