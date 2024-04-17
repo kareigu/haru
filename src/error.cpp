@@ -5,16 +5,15 @@ constexpr const char** init_type_as_string(auto max_value) {
   using IntType = haru::Error::TypeAsInt;
 
 #define ERR_STR(VARIANT) array[static_cast<IntType>(haru::Error::VARIANT)] = #VARIANT
-  ERR_STR(NO_INPUT);
-  ERR_STR(INPUT_ERROR);
-  ERR_STR(WRITE_ERROR);
   ERR_STR(ALREADY_EXISTS);
-  ERR_STR(IO_ERROR);
-  ERR_STR(GENERATE_ERROR);
-  ERR_STR(EXEC_ERROR);
-  ERR_STR(NOT_FOUND);
   ERR_STR(CONFIG_ERROR);
-  // TODO: Alphabetise
+  ERR_STR(EXEC_ERROR);
+  ERR_STR(GENERATE_ERROR);
+  ERR_STR(INPUT_ERROR);
+  ERR_STR(IO_ERROR);
+  ERR_STR(NOT_FOUND);
+  ERR_STR(NO_INPUT);
+  ERR_STR(WRITE_ERROR);
   array[max_value] = "Unknown";
 
   return array;
