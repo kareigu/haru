@@ -59,9 +59,46 @@ std::expected<Config::Config_t, Error> Config::get_local_config() {
 }
 
 std::expected<Config::Config_t, Error> Config::get_config(const std::filesystem::path& path) {
-  std::ifstream ifstream(path);
-  return default_config();
-  return std::unexpected(Error(Error::UNKNOWN_ERROR, "Reading not implemented"));
+  std::ifstream file(path);
+
+  Config_t config;
+
+  std::string current_header;
+  size_t current_line = 0;
+  while (true) {
+    std::string line;
+    std::getline(file, line);
+    current_line++;
+
+    if (line.starts_with('[')) {
+      long end = static_cast<long>(line.find(']', 1));
+      current_header = std::string(line.begin() + 1, line.begin() + end);
+      continue;
+    }
+
+    if (line.contains('=')) {
+      long split_point = static_cast<long>(line.find('='));
+      std::string_view local_key(line.begin(), line.begin() + split_point);
+      std::string_view value(line.begin() + split_point + 1, line.end());
+
+      std::string key = current_header.empty()
+                              ? std::string(local_key)
+                              : fmt::format("{:s}.{:s}", current_header, local_key);
+
+      config[key] = std::string(value);
+      continue;
+    }
+
+    if (file.eof()) {
+      break;
+    }
+
+    return std::unexpected(Error(
+            Error::CONFIG_ERROR,
+            fmt::format("Invalid configuration value at line {:d}: '{:s}'", current_line, line)));
+  }
+
+  return config;
 }
 
 std::expected<void, Error> Config::write_value(const std::string& key, const std::string& value, bool global) {

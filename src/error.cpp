@@ -13,6 +13,8 @@ constexpr const char** init_type_as_string(auto max_value) {
   ERR_STR(GENERATE_ERROR);
   ERR_STR(EXEC_ERROR);
   ERR_STR(NOT_FOUND);
+  ERR_STR(CONFIG_ERROR);
+  // TODO: Alphabetise
   array[max_value] = "Unknown";
 
   return array;

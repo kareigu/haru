@@ -20,9 +20,11 @@ public:
     GENERATE_ERROR,
     EXEC_ERROR,
     NOT_FOUND,
+    CONFIG_ERROR,
     UNKNOWN_ERROR = TYPE_MAX_VALUE,
   };
   using Type::ALREADY_EXISTS;
+  using Type::CONFIG_ERROR;
   using Type::EXEC_ERROR;
   using Type::GENERATE_ERROR;
   using Type::INPUT_ERROR;
