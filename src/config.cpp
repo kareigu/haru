@@ -48,13 +48,13 @@ std::optional<const std::filesystem::path> Config::get_local_config_path() {
 std::expected<Config::Config_t, Error> Config::get_global_config() {
   auto path = get_global_config_path();
   if (!std::filesystem::exists(path))
-    return default_config();
+    return {};
   return get_config(path);
 }
 std::expected<Config::Config_t, Error> Config::get_local_config() {
   auto path = get_local_config_path();
   if (!path)
-    return default_config();
+    return {};
   return get_config(path.value());
 }
 
