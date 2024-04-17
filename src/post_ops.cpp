@@ -1,4 +1,5 @@
 #include "post_ops.h"
+#include "config.h"
 #include "error.h"
 #include "log.h"
 #include "project_info.h"
@@ -14,9 +15,9 @@
 namespace haru {
 std::expected<void, Error> handle_git_init(const std::filesystem::path& workpath, bool use_defaults);
 std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpath, Language_t languages, bool use_defaults);
-std::optional<std::string_view> get_available_cpp_compiler();
-std::optional<std::string_view> get_available_c_compiler();
-std::optional<std::string_view> get_available_generator();
+std::optional<std::string> get_available_cpp_compiler();
+std::optional<std::string> get_available_c_compiler();
+std::optional<std::string> get_available_generator();
 
 std::expected<void, Error> handle_post_ops(const std::filesystem::path& workpath, Language_t languages, bool use_defaults) {
   TRY(handle_git_init(workpath, use_defaults));
@@ -84,8 +85,8 @@ std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpa
     generator = TRY(prompt<std::string>("Build generator", default_generator.transform([](std::string_view v) { return std::string(v); })));
   cmake_flags << " -G \"" << generator << '"';
 
-  static constexpr const char* DEFAULT_DIR = "build";
-  std::string build_dir = use_defaults ? DEFAULT_DIR : TRY(prompt<std::string>("Build directory", DEFAULT_DIR));
+  std::string default_dir = TRY(Config::get_value("cmake.build_dir"));
+  std::string build_dir = use_defaults ? default_dir : TRY(prompt<std::string>("Build directory", default_dir));
   cmake_flags << " -B \"" << build_dir << '"';
 
   if (std::system(fmt::format("cd {} && {:s} {:s} .", workpath, CMAKE_COMMAND, cmake_flags.str()).c_str()))
@@ -94,19 +95,32 @@ std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpa
   return {};
 }
 
-std::optional<std::string_view> get_available_cpp_compiler() {
+std::optional<std::string> get_available_cpp_compiler() {
   static constexpr const char* CLANG = "clang++";
   static constexpr const char* GCC = "g++";
 
+  auto config_ret = Config::get_value("cmake.cpp_compiler");
+  if (config_ret.has_value()) {
+    if (check_command_exists(config_ret.value()).has_value())
+      return config_ret.value();
+  }
+
   if (check_command_exists(CLANG).has_value())
     return CLANG;
   if (check_command_exists(GCC).has_value())
     return GCC;
   return std::nullopt;
 }
-std::optional<std::string_view> get_available_c_compiler() {
+std::optional<std::string> get_available_c_compiler() {
   static constexpr const char* CLANG = "clang";
   static constexpr const char* GCC = "gcc";
+
+  auto config_ret = Config::get_value("cmake.c_compiler");
+  if (config_ret.has_value()) {
+    if (check_command_exists(config_ret.value()).has_value())
+      return config_ret.value();
+  }
+
   if (check_command_exists(CLANG).has_value())
     return CLANG;
   if (check_command_exists(GCC).has_value())
@@ -114,9 +128,20 @@ std::optional<std::string_view> get_available_c_compiler() {
   return std::nullopt;
 }
 
-std::optional<std::string_view> get_available_generator() {
+std::optional<std::string> get_available_generator() {
   static constexpr const char* NINJA_MULTICONFIG = "Ninja Multi-Config";
   static constexpr const char* MAKE = "Unix Makefiles";
+
+  auto config_ret = Config::get_value("cmake.generator");
+  if (config_ret.has_value()) {
+    std::string config_generator = config_ret.value();
+    if (config_generator.contains("Ninja"))
+      if (check_command_exists("ninja").has_value())
+        return config_ret.value();
+    if (config_generator.contains("Makefiles"))
+      if (check_command_exists("make").has_value())
+        return config_ret.value();
+  }
 
   if (check_command_exists("ninja").has_value())
     return NINJA_MULTICONFIG;

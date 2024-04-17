@@ -274,9 +274,10 @@ Config::Config_t Config::default_config() {
           {"project.entry_point", "src/main"},
           {"project.cpp_std", "23"},
           {"project.c_std", "17"},
-          {"cmake.cxx_compiler", "clang++"},
+          {"cmake.cpp_compiler", "clang++"},
           {"cmake.c_compiler", "clang"},
           {"cmake.generator", "Ninja Multi-Config"},
+          {"cmake.build_dir", "build"},
   };
 }
 }// namespace haru
