@@ -95,6 +95,13 @@ std::expected<Config::Config_t, Error> Config::get_config(const std::filesystem:
 
     if (line.empty() || line == "\n" || line == "\n\r")
       continue;
+
+
+    if (file.fail())
+      return std::unexpected(Error(
+              Error::IO_ERROR,
+              fmt::format("Failed while reading config file at line {:d}: {:s}", current_line, line)));
+
     return std::unexpected(Error(
             Error::CONFIG_ERROR,
             fmt::format("Invalid configuration value at line {:d}: '{:s}'", current_line, line)));
@@ -170,6 +177,11 @@ std::expected<void, Error> Config::write_value(const std::string& key, const std
     if (read_file.eof())
       break;
     output << '\n';
+
+    if (read_file.fail())
+      return std::unexpected(Error(
+              Error::IO_ERROR,
+              fmt::format("Failed while reading config file")));
   }
   read_file.close();
 
@@ -181,6 +193,8 @@ std::expected<void, Error> Config::write_value(const std::string& key, const std
 
   std::ofstream write_file(filepath);
   write_file << output.rdbuf();
+  if (write_file.fail())
+    return std::unexpected(Error(Error::IO_ERROR, "Failed while writing config file"));
   write_file.close();
   return {};
 }
