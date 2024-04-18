@@ -94,7 +94,7 @@ namespace arg_parse {
     }
 
 
-    return std::unexpected(Error(Error::UNKNOWN_ERROR));
+    return std::unexpected(Error(Error::UNKNOWN_ERROR, "Unhandled command provided"));
   }
 
   std::string help_string() {
