@@ -18,6 +18,8 @@ namespace arg_parse {
   static argparse::ArgumentParser s_create_cmd("create", HARU_VERSION);
   static argparse::ArgumentParser s_init_cmd("init", HARU_VERSION);
   static argparse::ArgumentParser s_config_cmd("config", HARU_VERSION);
+  static argparse::ArgumentParser s_cmake_cmd("cmake", HARU_VERSION);
+  static argparse::ArgumentParser s_cmake_init_cmd("init", HARU_VERSION);
 
   void init() {
     s_prg.add_description("Generate CMake projects for C/C++");
@@ -48,9 +50,19 @@ namespace arg_parse {
             .flag()
             .help("Print out the paths to currently affecting config files");
 
+    s_cmake_cmd.add_description("Run CMake related commands");
+    s_cmake_init_cmd.add_description("Initialise CMake using the local or global config");
+    s_cmake_init_cmd
+            .add_argument("-g", "--global")
+            .flag()
+            .help("Force using the global cache instead of a local one");
+    s_cmake_cmd.add_subparser(s_cmake_init_cmd);
+
+
     s_prg.add_subparser(s_create_cmd);
     s_prg.add_subparser(s_init_cmd);
     s_prg.add_subparser(s_config_cmd);
+    s_prg.add_subparser(s_cmake_cmd);
   }
 
 
@@ -93,6 +105,17 @@ namespace arg_parse {
       return Command{.type = Command::CONFIG, .flags = flags, .args = args};
     }
 
+    if (s_prg.is_subcommand_used(s_cmake_cmd)) {
+      if (s_cmake_cmd.is_subcommand_used(s_cmake_init_cmd)) {
+        if (s_cmake_init_cmd.get<bool>("-g"))
+          flags |= Command::Flags::GLOBAL;
+
+        return Command{.type = Command::CMAKE_INIT, .flags = flags, .args = {}};
+      }
+
+      return std::unexpected(Error(Error::INPUT_ERROR, "Subcommand needs to be provided"));
+    }
+
 
     return std::unexpected(Error(Error::UNKNOWN_ERROR, "Unhandled command provided"));
   }
@@ -104,6 +127,10 @@ namespace arg_parse {
       return s_init_cmd.help().str();
     if (s_prg.is_subcommand_used(s_config_cmd))
       return s_config_cmd.help().str();
+    if (s_cmake_cmd.is_subcommand_used(s_cmake_init_cmd))
+      return s_cmake_init_cmd.help().str();
+    if (s_prg.is_subcommand_used(s_cmake_cmd))
+      return s_cmake_cmd.help().str();
     return s_prg.help().str();
   }
 

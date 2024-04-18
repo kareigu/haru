@@ -11,6 +11,7 @@ public:
     CREATE,
     INIT,
     CONFIG,
+    CMAKE_INIT,
   };
 
   using Flags_t = uint8_t;
@@ -22,6 +23,7 @@ public:
     static constexpr Command::Flags_t PATH = 8;
   };
 
+  using Type::CMAKE_INIT;
   using Type::CONFIG;
   using Type::CREATE;
   using Type::INIT;
