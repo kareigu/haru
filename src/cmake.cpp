@@ -1,8 +1,8 @@
 #include "cmake.h"
 #include "config.h"
+#include "log.h"
 #include "utils.h"
 #include <cstdlib>
-#include <fmt/std.h>
 #include <sstream>
 
 namespace haru {
@@ -34,6 +34,8 @@ namespace cmake {
     config.c_compiler = TRY(haru::Config::get_value("cmake.c_compiler"));
     config.generator = TRY(haru::Config::get_value("cmake.generator"));
     config.build_dir = TRY(haru::Config::get_value("cmake.build_dir"));
+
+    log::info("CMake settings:\n{}", config);
 
     TRY(init(config));
 
