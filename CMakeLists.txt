@@ -13,6 +13,7 @@ fetch_project_dependencies()
 
 set(PROJECT_SOURCES
     src/args_parser.cpp
+    src/cmake.cpp
     src/cmake_lists_generator.cpp
     src/command.cpp
     src/config.cpp

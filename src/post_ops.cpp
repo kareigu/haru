@@ -1,4 +1,5 @@
 #include "post_ops.h"
+#include "cmake.h"
 #include "config.h"
 #include "error.h"
 #include "log.h"
@@ -44,18 +45,17 @@ std::expected<void, Error> handle_git_init(const std::filesystem::path& workpath
 }
 
 std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpath, Language_t languages, bool use_defaults) {
-  static constexpr const char* CMAKE_COMMAND = "cmake";
-  if (auto ret = check_command_exists(CMAKE_COMMAND); !ret) {
+  if (auto ret = check_command_exists(cmake::COMMAND); !ret) {
     log::warn(ret.error());
     return {};
   }
-  log::info("Found {:s} in path", CMAKE_COMMAND);
+  log::info("Found {:s} in path", cmake::COMMAND);
   bool init_cmake = use_defaults ? true : TRY(prompt_yes_no("Initialise cmake?", true));
   if (!init_cmake) {
     return {};
   }
 
-  std::stringstream cmake_flags;
+  cmake::Config config;
   if (languages & Language::CPP) {
     auto cpp_compiler_ret = get_available_cpp_compiler();
     if (!cpp_compiler_ret.has_value())
@@ -63,7 +63,7 @@ std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpa
     std::string cpp_compiler = std::string(cpp_compiler_ret.value());
     if (!use_defaults)
       cpp_compiler = TRY(prompt<std::string>("C++-compiler", cpp_compiler));
-    cmake_flags << fmt::format(" -DCMAKE_CXX_COMPILER=\"{:s}\"", cpp_compiler);
+    config.cpp_compiler = cpp_compiler;
   }
 
   if (languages & Language::C) {
@@ -73,24 +73,20 @@ std::expected<void, Error> handle_cmake_init(const std::filesystem::path& workpa
     std::string c_compiler = std::string(c_compiler_ret.value());
     if (!use_defaults)
       c_compiler = TRY(prompt<std::string>("C-compiler", c_compiler));
-    cmake_flags << fmt::format(" -DCMAKE_C_COMPILER=\"{:s}\"", c_compiler);
+    config.c_compiler = c_compiler;
   }
-  cmake_flags << " -DCMAKE_EXPORT_COMPILE_COMMANDS=1";
 
   auto default_generator = get_available_generator();
-  std::string generator;
   if (use_defaults && default_generator)
-    generator = default_generator.value();
+    config.generator = default_generator.value();
   else
-    generator = TRY(prompt<std::string>("Build generator", default_generator.transform([](std::string_view v) { return std::string(v); })));
-  cmake_flags << " -G \"" << generator << '"';
+    config.generator = TRY(prompt<std::string>("Build generator", default_generator.transform([](std::string_view v) { return std::string(v); })));
 
   std::string default_dir = TRY(Config::get_value("cmake.build_dir"));
   std::string build_dir = use_defaults ? default_dir : TRY(prompt<std::string>("Build directory", default_dir));
-  cmake_flags << " -B \"" << build_dir << '"';
+  config.build_dir = build_dir;
 
-  if (std::system(fmt::format("cd {} && {:s} {:s} .", workpath, CMAKE_COMMAND, cmake_flags.str()).c_str()))
-    return std::unexpected(Error(Error::EXEC_ERROR, "Couldn't initialise cmake"));
+  TRY(cmake::init(config, workpath));
 
   return {};
 }
