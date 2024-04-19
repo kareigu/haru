@@ -1,4 +1,5 @@
 #pragma once
+#include "command.h"
 #include "error.h"
 #include <expected>
 #include <filesystem>
@@ -16,5 +17,6 @@ namespace cmake {
   };
 
   std::expected<void, Error> init(const Config& config, std::optional<const std::filesystem::path> workpath = std::nullopt);
+  std::expected<void, Error> handle_init_command(const Command::Flags_t flags);
 }// namespace cmake
 }// namespace haru

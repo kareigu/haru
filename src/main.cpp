@@ -1,4 +1,5 @@
 #include "args_parser.h"
+#include "cmake.h"
 #include "cmake_lists_generator.h"
 #include "command.h"
 #include "config.h"
@@ -66,6 +67,7 @@ int main(int argc, char** argv) {
     MUST(haru::Config::handle_config_command(ran_command.args, ran_command.flags));
   } else if (ran_command.type == haru::Command::CMAKE_INIT) {
     haru::log::info("Running CMake init");
+    haru::cmake::handle_init_command(ran_command.flags);
   }
 
   return EXIT_SUCCESS;

@@ -1,4 +1,6 @@
 #include "cmake.h"
+#include "config.h"
+#include "utils.h"
 #include <cstdlib>
 #include <fmt/std.h>
 #include <sstream>
@@ -22,6 +24,18 @@ namespace cmake {
 
     if (std::system(fmt::format("{:s}{:s} {:s}", cd_command, COMMAND, flags.str()).c_str()))
       return std::unexpected(Error(Error::EXEC_ERROR, "Couldn't initialise CMake project"));
+
+    return {};
+  }
+
+  std::expected<void, Error> handle_init_command(const Command::Flags_t flags) {
+    Config config;
+    config.cpp_compiler = TRY(haru::Config::get_value("cmake.cpp_compiler"));
+    config.c_compiler = TRY(haru::Config::get_value("cmake.c_compiler"));
+    config.generator = TRY(haru::Config::get_value("cmake.generator"));
+    config.build_dir = TRY(haru::Config::get_value("cmake.build_dir"));
+
+    TRY(init(config));
 
     return {};
   }
