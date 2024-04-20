@@ -238,7 +238,7 @@ std::expected<void, Error> Config::handle_config_command(const std::vector<std::
   return {};
 }
 
-std::expected<std::string, Error> Config::get_value(const std::string_view key) {
+std::expected<std::string, Error> Config::get_value(const std::string_view key, bool override_local) {
   static Config_t local_config;
   static Config_t global_config;
   static Config_t default_config;
@@ -252,11 +252,19 @@ std::expected<std::string, Error> Config::get_value(const std::string_view key) 
 
   std::string k(key);
 
-  if (!local_config[k].empty())
-    return local_config[k];
+  if (override_local) {
+    if (!global_config[k].empty())
+      return global_config[k];
 
-  if (!global_config[k].empty())
-    return global_config[k];
+    if (!local_config[k].empty())
+      return local_config[k];
+  } else {
+    if (!local_config[k].empty())
+      return local_config[k];
+
+    if (!global_config[k].empty())
+      return global_config[k];
+  }
 
   if (!default_config[k].empty())
     return default_config[k];
