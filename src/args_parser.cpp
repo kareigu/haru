@@ -42,20 +42,20 @@ namespace arg_parse {
             .add_argument("value")
             .remaining()
             .nargs(0, 1)
-            .help("Value to set to accessed configuration key");
+            .help("Value to set");
     s_config_cmd.add_argument("-g", "--global")
             .flag()
-            .help("Affect global configuration rather than project specific ones");
+            .help("Operate on global configuration instead of local");
     s_config_cmd.add_argument("-p", "--path")
             .flag()
-            .help("Print out the paths to currently affecting config files");
+            .help("Print out the paths to currently effective config files");
 
     s_cmake_cmd.add_description("Run CMake related commands");
-    s_cmake_init_cmd.add_description("Initialise CMake using the local or global config");
+    s_cmake_init_cmd.add_description("Initialise CMake using a available config");
     s_cmake_init_cmd
             .add_argument("-g", "--global")
             .flag()
-            .help("Force using the global cache instead of a local one");
+            .help("Force using the global config instead of the local one");
     s_cmake_cmd.add_subparser(s_cmake_init_cmd);
 
 
