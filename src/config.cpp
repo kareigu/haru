@@ -121,6 +121,11 @@ std::expected<void, Error> Config::write_value(const std::string& key, const std
     filepath = local.value();
   }
 
+  if (!std::filesystem::exists(filepath)) {
+    std::ofstream touch(filepath);
+    touch.close();
+  }
+
   std::ifstream read_file(filepath);
   std::stringstream output;
 
