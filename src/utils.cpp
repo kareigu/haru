@@ -12,7 +12,7 @@
 namespace haru {
 
 template<>
-std::expected<std::string, Error> prompt(const char* text, std::optional<std::string> default_value, bool new_line) {
+inline std::expected<std::string, Error> prompt(const char* text, std::optional<std::string> default_value, bool new_line) {
   auto default_value_formatted = default_value.has_value() ? fmt::format(" ({})", default_value.value()) : "";
   fmt::print("{:s}{:s}: ", text, default_value_formatted, new_line);
   if (new_line)

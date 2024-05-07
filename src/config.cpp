@@ -8,13 +8,27 @@
 #include <fmt/core.h>
 #include <fmt/std.h>
 #include <fstream>
-#include <pwd.h>
 #include <stdlib.h>
 #include <string_view>
-#include <unistd.h>
 #include <vector>
 
+#ifndef _WIN32
+  #include <pwd.h>
+  #include <unistd.h>
+#endif
+
 namespace haru {
+#ifdef _WIN32
+const std::filesystem::path Config::get_global_config_path() {
+  char* home;
+  size_t len;
+  if (_dupenv_s(&home, &len, "USERPROFILE")) {
+    _dupenv_s(&home, &len, "HOME");
+  }
+  auto path = std::filesystem::absolute(fmt::format("{:s}\\.config\\{:s}", home, CONFIG_FILE_NAME));
+  return path;
+}
+#else
 const std::filesystem::path Config::get_global_config_path() {
   const char* home = "";
   if ((home = getenv("XDG_CONFIG_HOME")) == nullptr) {
@@ -27,6 +41,7 @@ const std::filesystem::path Config::get_global_config_path() {
   auto path = std::filesystem::absolute(fmt::format("{:s}/{:s}", home, CONFIG_FILE_NAME));
   return path;
 }
+#endif
 
 std::optional<const std::filesystem::path> Config::get_local_config_path() {
   if (std::filesystem::exists(CONFIG_FILE_NAME))
