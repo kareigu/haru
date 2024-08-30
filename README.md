@@ -2,12 +2,15 @@
 
 ## 🥡 CMake project generator for C and C++
 
-`haru` can be used to initialise a barebones CMake project.  
-This initialisation process can be customised
-by responding to prompts during project initialisation.  
-These options are further detailed [below](#-usage).  
-Alternatively leave everything to the default values,
-which strive to provide a sensible basic project setup.  
+`haru` helps you initialise a barebones CMake project.
+
+The initialisation process can be customised
+through prompts during project initialisation.
+
+Options available are further detailed [below](#-usage).
+
+Alternatively leave everything to the default values
+for a sensible basic project setup.
 
 ___
 
@@ -33,17 +36,18 @@ Main two commands to get a new project started are:
 | `create`  | Create a new directory with the name of the project |
 | `init`    | Initialise a project in the current directory       |
 
-Both commands allow using all default values
-by issuing the flag `-d` or `--use-defaults`.  
-This will skip the configuration section,
-aside from having to enter the project name when using `create`.  
+Both commands allow using default values
+by issuing the flag `-d` or `--use-defaults`.
 
-For `create`, if a directory already exists with the project name,
-the project creation will abort by default.  
-This behaviour can however be overridden with the `-f` or `--force` flag
-to allow overwriting the directory when found.  
+Using defaults skip the configuration section,
+with the exception of having to enter the project name when using `create`.
 
-After this `haru` will ask you for input about project settings:
+For `create`, project creation will be aborted by default
+if a directory already exists with the project name.
+
+You can allow overwriting the existing directory with `-f` or `--force`.
+
+After this `haru` will ask you about project settings:
 <!-- markdownlint-disable MD013 -->
 |     Option           |                       Description                                    |
 | -------------------- | -------------------------------------------------------------------- |
@@ -66,6 +70,7 @@ to a `haru.conf` file located at the project root.
 If this local configuration file does not contain a value required for
 initialising the project, it will first look at your global `haru.conf` file
 located at `$HOME/.config/haru.conf`.
+
 When no configuration is found, a default value will be used instead.
 
 It's possible to override the local configuration
@@ -77,9 +82,9 @@ ___
 
 ### 💻 Using
 
-For general usage, `haru` is completely self contained in a single binary.  
-However, a few external tools are used, when present,
-to make the generated output better.
+For general usage, `haru` is completely self contained in a single binary.
+However, a few external tools are used - when present -
+to clean up the generated output.
 
 - `gersemi`
   - Runs when `.gersemirc` is included in project initialisation.
