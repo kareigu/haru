@@ -8,6 +8,9 @@
 #include <ranges>
 #include <string>
 #include <string_view>
+#ifdef __FreeBSD__
+  #include <sys/param.h>
+#endif
 
 namespace haru {
 
@@ -37,7 +40,7 @@ std::expected<bool, Error> prompt_yes_no(std::string_view text, bool default_val
   std::string value_input;
   std::getline(std::cin, value_input);
 
-#if __FreeBSD__ && __FreeBSD__ < 15
+#if __FreeBSD__ && __FreeBSD_version < 1401000
   size_t start = 0;
   size_t end = value_input.size();
   for (size_t i = 0; i < value_input.size(); i++) {
