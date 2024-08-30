@@ -58,6 +58,19 @@ After this `haru` will ask you for input about project settings:
 | Dependencies         | Add arbitary dependencies if desired.                                |
 <!-- markdownlint-enable MD013 -->
 
+Second function for `haru` is initialising an existing CMake project.
+
+Running `haru cmake init` will try to initialise the project according
+to a `haru.conf` file located at the project root.
+
+If this local configuration file does not contain a value required for
+initialising the project, it will first look at your global `haru.conf` file
+located at `$HOME/.config/haru.conf`.
+When no configuration is found, a default value will be used instead.
+
+It's possible to override the local configuration
+with your own global values by using the `-g` or `--global` flag.
+
 ___
 
 ## 📋 Requirements
