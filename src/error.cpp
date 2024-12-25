@@ -1,6 +1,6 @@
 #include "error.h"
 
-constexpr const char** init_type_as_string(auto max_value) {
+constexpr const static char** init_type_as_string(auto max_value) {
   const char** array = new const char*[max_value];
   using IntType = haru::Error::TypeAsInt;
 
