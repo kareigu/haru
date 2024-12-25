@@ -113,8 +113,8 @@ std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info,
     size_t last_index = default_dependencies.size() - 1;
     for (size_t i = 0; i < last_index; i++)
       defaults_formatted << fmt::format("{}, ", default_dependencies[i].name);
-    if (last_index >= 0)
-      defaults_formatted << default_dependencies[last_index].name;
+
+    defaults_formatted << default_dependencies[last_index].name;
 
 
     if (!use_defaults)
