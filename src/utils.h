@@ -9,29 +9,32 @@
 #include <string>
 #include <vector>
 
-#define TRY(EXPR) ({                           \
-  auto&& _temp_ret = (EXPR);                   \
-  if (!_temp_ret)                              \
-    return std::unexpected(_temp_ret.error()); \
-  _temp_ret.value();                           \
-})
+#define TRY(EXPR)                                \
+  __extension__({                                \
+    auto&& _temp_ret = (EXPR);                   \
+    if (!_temp_ret)                              \
+      return std::unexpected(_temp_ret.error()); \
+    _temp_ret.value();                           \
+  })
 
-#define MUST(EXPR) ({                    \
-  auto&& _temp_ret = (EXPR);             \
-  if (!_temp_ret) {                      \
-    haru::log::error(_temp_ret.error()); \
-    std::exit(EXIT_FAILURE);             \
-  }                                      \
-  _temp_ret.value();                     \
-})
+#define MUST(EXPR)                         \
+  __extension__({                          \
+    auto&& _temp_ret = (EXPR);             \
+    if (!_temp_ret) {                      \
+      haru::log::error(_temp_ret.error()); \
+      std::exit(EXIT_FAILURE);             \
+    }                                      \
+    _temp_ret.value();                     \
+  })
 
-#define WARN(EXPR) ({                   \
-  auto&& _temp_ret = (EXPR);            \
-  if (!_temp_ret) {                     \
-    haru::log::warn(_temp_ret.error()); \
-    std::exit(EXIT_FAILURE);            \
-  }                                     \
-})
+#define WARN(EXPR)                        \
+  __extension__({                         \
+    auto&& _temp_ret = (EXPR);            \
+    if (!_temp_ret) {                     \
+      haru::log::warn(_temp_ret.error()); \
+      std::exit(EXIT_FAILURE);            \
+    }                                     \
+  })
 
 namespace haru {
 
