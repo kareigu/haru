@@ -84,9 +84,9 @@ add_custom_target(
 
 if(NINJA_MULTICONFIG)
     foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
-        string(TOLOWER ${CONFIG} CONFIG)
+        string(TOLOWER ${CONFIG} CONFIG_LOWER)
         add_custom_target(
-            ${CONFIG}
+            ${CONFIG_LOWER}
             COMMAND
                 ${CMAKE_COMMAND} --build "${CMAKE_CURRENT_BINARY_DIR}"
                 "--config" "${CONFIG}"
