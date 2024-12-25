@@ -14,7 +14,7 @@ constexpr const char** init_type_as_string(auto max_value) {
   ERR_STR(NOT_FOUND);
   ERR_STR(NO_INPUT);
   ERR_STR(WRITE_ERROR);
-  array[max_value] = "Unknown";
+  array[max_value - 1] = "Unknown";
 
   return array;
 }
