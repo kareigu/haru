@@ -262,11 +262,9 @@ CMakeListsGenerator::generate() {
         CMakeFile{.filepath = "cmake/compile_flags.cmake",
                   .contents = std::move(compile_flags_contents)});
 
-    if (m_project_info.default_files & DefaultFiles::CLANG_FORMAT) {
-        std::string tidy_contents = TRY(generate_tidy());
-        files.emplace_back(CMakeFile{.filepath = "cmake/tidy.cmake",
-                                     .contents = std::move(tidy_contents)});
-    }
+    std::string tidy_contents = TRY(generate_tidy());
+    files.emplace_back(CMakeFile{.filepath = "cmake/tidy.cmake",
+                                 .contents = std::move(tidy_contents)});
 
     return files;
 }

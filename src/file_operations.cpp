@@ -154,6 +154,17 @@ write_default_files(const std::filesystem::path& workpath,
                 Error(Error::WRITE_ERROR, "Failed writing .clang-format"));
         log::info("Wrote {}", filepath);
     }
+    if (default_files & DefaultFiles::CLANG_TIDY) {
+        auto filepath = workpath;
+        filepath += "/.clang-tidy";
+        std::ofstream output(filepath);
+        for (size_t i = 0; i < bake_in_clang_tidy_len; i++)
+            output << static_cast<char>(bake_in_clang_tidy[i]);
+        if (output.bad() || output.fail())
+            return std::unexpected(
+                Error(Error::WRITE_ERROR, "Failed writing .clang-tidy"));
+        log::info("Wrote {}", filepath);
+    }
     if (default_files & DefaultFiles::GERSEMIRC) {
         auto filepath = workpath;
         filepath += "/.gersemirc";

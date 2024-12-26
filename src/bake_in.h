@@ -5,6 +5,7 @@
     extern unsigned int bake_in_##NAME##_len
 
 BAKE_IN(clang_format);
+BAKE_IN(clang_tidy);
 BAKE_IN(gersemirc);
 BAKE_IN(gitignore);
 BAKE_IN(cmakelists);

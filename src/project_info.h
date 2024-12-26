@@ -47,9 +47,11 @@ using DefaultFiles_t = uint8_t;
 namespace DefaultFiles {
 constexpr DefaultFiles_t NONE = 0;
 constexpr DefaultFiles_t CLANG_FORMAT = 1;
-constexpr DefaultFiles_t GERSEMIRC = 2;
-constexpr DefaultFiles_t GITIGNORE = 4;
-constexpr DefaultFiles_t ALL = CLANG_FORMAT | GERSEMIRC | GITIGNORE;
+constexpr DefaultFiles_t CLANG_TIDY = 2;
+constexpr DefaultFiles_t GERSEMIRC = 4;
+constexpr DefaultFiles_t GITIGNORE = 8;
+constexpr DefaultFiles_t ALL =
+    CLANG_FORMAT | CLANG_TIDY | GERSEMIRC | GITIGNORE;
 
 std::string to_string(DefaultFiles_t files);
 } // namespace DefaultFiles

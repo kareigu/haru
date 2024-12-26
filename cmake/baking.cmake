@@ -12,6 +12,7 @@ function(add_bake_in_files)
     )
     set(filenames
         "clang_format"
+	"clang_tidy"
         "gersemirc"
         "gitignore"
         "cmakelists"

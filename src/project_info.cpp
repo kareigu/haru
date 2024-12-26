@@ -5,6 +5,7 @@
 #include "error.h"
 #include "log.h"
 #include "utils.h"
+#include <cassert>
 #include <cstddef>
 #include <expected>
 #include <fmt/core.h>
@@ -89,6 +90,7 @@ ProjectInfo::parse_from_input(Command::Flags_t flags,
 
     std::vector<std::string> default_files = {
         DefaultFiles::to_string(DefaultFiles::CLANG_FORMAT),
+        DefaultFiles::to_string(DefaultFiles::CLANG_TIDY),
         DefaultFiles::to_string(DefaultFiles::GERSEMIRC),
         DefaultFiles::to_string(DefaultFiles::GITIGNORE),
     };
@@ -101,6 +103,10 @@ ProjectInfo::parse_from_input(Command::Flags_t flags,
             project_info.default_files |= DefaultFiles::CLANG_FORMAT;
             continue;
         }
+        if (file == DefaultFiles::to_string(DefaultFiles::CLANG_TIDY)) {
+            project_info.default_files |= DefaultFiles::CLANG_TIDY;
+            continue;
+        }
         if (file == DefaultFiles::to_string(DefaultFiles::GERSEMIRC)) {
             project_info.default_files |= DefaultFiles::GERSEMIRC;
             continue;
@@ -109,6 +115,7 @@ ProjectInfo::parse_from_input(Command::Flags_t flags,
             project_info.default_files |= DefaultFiles::GITIGNORE;
             continue;
         }
+        assert("Unhandled filetype" == file);
     }
 
     bool add_dependencies =
@@ -214,6 +221,9 @@ std::string DefaultFiles::to_string(DefaultFiles_t files) {
     std::ostringstream ss;
     if (files & CLANG_FORMAT)
         ss << "clang_format, ";
+
+    if (files & CLANG_TIDY)
+        ss << "clang_tidy, ";
 
     if (files & GERSEMIRC)
         ss << "gersemirc, ";
