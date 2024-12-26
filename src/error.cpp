@@ -1,35 +1,35 @@
 #include "error.h"
 
-template<haru::Error::TypeAsInt MAX_VALUE>
+template <haru::Error::TypeAsInt MAX_VALUE>
 constexpr static const char** init_type_as_string() {
-  static const char* array[MAX_VALUE];
-  using IntType = haru::Error::TypeAsInt;
+    static const char* array[MAX_VALUE];
+    using IntType = haru::Error::TypeAsInt;
 
-#define ERR_STR(VARIANT) array[static_cast<IntType>(haru::Error::VARIANT)] = #VARIANT
-  ERR_STR(ALREADY_EXISTS);
-  ERR_STR(CONFIG_ERROR);
-  ERR_STR(EXEC_ERROR);
-  ERR_STR(GENERATE_ERROR);
-  ERR_STR(INPUT_ERROR);
-  ERR_STR(IO_ERROR);
-  ERR_STR(NOT_FOUND);
-  ERR_STR(NO_INPUT);
-  ERR_STR(WRITE_ERROR);
-  array[MAX_VALUE - 1] = "Unknown";
+#define ERR_STR(VARIANT) \
+    array[static_cast<IntType>(haru::Error::VARIANT)] = #VARIANT
+    ERR_STR(ALREADY_EXISTS);
+    ERR_STR(CONFIG_ERROR);
+    ERR_STR(EXEC_ERROR);
+    ERR_STR(GENERATE_ERROR);
+    ERR_STR(INPUT_ERROR);
+    ERR_STR(IO_ERROR);
+    ERR_STR(NOT_FOUND);
+    ERR_STR(NO_INPUT);
+    ERR_STR(WRITE_ERROR);
+    array[MAX_VALUE - 1] = "Unknown";
 
-  return array;
+    return array;
 }
 
 namespace haru {
 const char** Error::s_type_as_string = init_type_as_string<TYPE_MAX_VALUE>();
 
 const char* Error::type_as_string(Type type) {
-  const auto* const S_TYPE_STRING = s_type_as_string[static_cast<TypeAsInt>(type)];
-  if (type > UNKNOWN_ERROR || S_TYPE_STRING == nullptr)
-    return "InvalidErrorType";
-  return S_TYPE_STRING;
+    const auto* const S_TYPE_STRING =
+        s_type_as_string[static_cast<TypeAsInt>(type)];
+    if (type > UNKNOWN_ERROR || S_TYPE_STRING == nullptr)
+        return "InvalidErrorType";
+    return S_TYPE_STRING;
 }
-const char* Error::type_as_string() const {
-  return type_as_string(m_type);
-}
-}// namespace haru
+const char* Error::type_as_string() const { return type_as_string(m_type); }
+} // namespace haru

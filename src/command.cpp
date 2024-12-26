@@ -2,6 +2,6 @@
 
 namespace haru {
 Command Command::noop() {
-  return Command{.type = Type::NO_OP, .flags = Flags::NONE, .args = {}};
+    return Command{.type = Type::NO_OP, .flags = Flags::NONE, .args = {}};
 }
-}// namespace haru
+} // namespace haru
