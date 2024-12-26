@@ -26,7 +26,7 @@ constexpr const char* ADD_TIDY_FN =
 
 #define INCLUDE_STR(FILE) "include(${CMAKE_SOURCE_DIR}/cmake/" FILE ")"
 
-std::optional<std::string_view>
+static std::optional<std::string_view>
 gather_templated_string(const std::string_view templ, size_t& i) {
     if (templ[i] == TEMPLATE_CHARACTER && templ[i + 1] == TEMPLATE_CHARACTER) {
         i += 2;

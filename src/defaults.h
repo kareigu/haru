@@ -7,7 +7,7 @@
 namespace haru {
 constexpr DefaultFiles_t DEFAULT_FILES = DefaultFiles::ALL;
 constexpr bool DEFAULT_ADD_DEPENDENCIES = true;
-// NOLINTNEXTLINE(readability-identifier-naming): Would just be constant if
+// NOLINTBEGIN(readability-identifier-naming): Would just be constant if
 // storing a std::string was contstexpr
 constexpr std::vector<Dependency>
 DEFAULT_DEPENDENCIES(std::string_view std_version, Language_t languages) {
@@ -31,5 +31,6 @@ DEFAULT_DEPENDENCIES(std::string_view std_version, Language_t languages) {
     }
     return {};
 }
+// NOLINTEND(readability-identifier-naming)
 
 } // namespace haru

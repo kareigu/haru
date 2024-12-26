@@ -14,8 +14,8 @@
 #include <vector>
 
 namespace haru {
-std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info,
-                                                      bool use_defaults);
+static std::expected<void, Error>
+handle_adding_dependencies(ProjectInfo& project_info, bool use_defaults);
 
 std::expected<ProjectInfo, Error>
 ProjectInfo::parse_from_input(Command::Flags_t flags,
@@ -127,8 +127,8 @@ ProjectInfo::parse_from_input(Command::Flags_t flags,
     return project_info;
 }
 
-std::expected<void, Error> handle_adding_dependencies(ProjectInfo& project_info,
-                                                      bool use_defaults) {
+static std::expected<void, Error>
+handle_adding_dependencies(ProjectInfo& project_info, bool use_defaults) {
     auto default_dependencies = DEFAULT_DEPENDENCIES(
         project_info.standard[ProjectInfo::CPP_INDEX], project_info.languages);
     bool add_defaults = !default_dependencies.empty();

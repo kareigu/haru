@@ -13,14 +13,14 @@
 #include <string_view>
 
 namespace haru {
-std::expected<void, Error>
+static std::expected<void, Error>
 handle_git_init(const std::filesystem::path& workpath, bool use_defaults);
-std::expected<void, Error>
+static std::expected<void, Error>
 handle_cmake_init(const std::filesystem::path& workpath, Language_t languages,
                   bool use_defaults);
-std::optional<std::string> get_available_cpp_compiler();
-std::optional<std::string> get_available_c_compiler();
-std::optional<std::string> get_available_generator();
+static std::optional<std::string> get_available_cpp_compiler();
+static std::optional<std::string> get_available_c_compiler();
+static std::optional<std::string> get_available_generator();
 
 std::expected<void, Error>
 handle_post_ops(const std::filesystem::path& workpath, Language_t languages,
@@ -30,7 +30,7 @@ handle_post_ops(const std::filesystem::path& workpath, Language_t languages,
     return {};
 }
 
-std::expected<void, Error>
+static std::expected<void, Error>
 handle_git_init(const std::filesystem::path& workpath, bool use_defaults) {
     static constexpr const char* GIT_COMMAND = "git";
     if (auto ret = check_command_exists(GIT_COMMAND); !ret) {
@@ -53,7 +53,7 @@ handle_git_init(const std::filesystem::path& workpath, bool use_defaults) {
     return {};
 }
 
-std::expected<void, Error>
+static std::expected<void, Error>
 handle_cmake_init(const std::filesystem::path& workpath, Language_t languages,
                   bool use_defaults) {
     if (auto ret = check_command_exists(cmake::COMMAND); !ret) {
@@ -111,7 +111,7 @@ handle_cmake_init(const std::filesystem::path& workpath, Language_t languages,
     return {};
 }
 
-std::optional<std::string> get_available_cpp_compiler() {
+static std::optional<std::string> get_available_cpp_compiler() {
     static constexpr const char* CLANG = "clang++";
     static constexpr const char* GCC = "g++";
 
@@ -127,7 +127,7 @@ std::optional<std::string> get_available_cpp_compiler() {
         return GCC;
     return std::nullopt;
 }
-std::optional<std::string> get_available_c_compiler() {
+static std::optional<std::string> get_available_c_compiler() {
     static constexpr const char* CLANG = "clang";
     static constexpr const char* GCC = "gcc";
 
@@ -144,7 +144,7 @@ std::optional<std::string> get_available_c_compiler() {
     return std::nullopt;
 }
 
-std::optional<std::string> get_available_generator() {
+static std::optional<std::string> get_available_generator() {
     static constexpr const char* NINJA_MULTICONFIG = "Ninja Multi-Config";
     static constexpr const char* MAKE = "Unix Makefiles";
 
