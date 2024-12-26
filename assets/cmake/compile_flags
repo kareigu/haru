@@ -29,7 +29,7 @@ function(add_project_compile_flags project_name)
 
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         set(WARNINGS_CXX
-            -diagnostics-color=always
+            -fdiagnostics-color=always
             ${GCC_WARNINGS}
         )
     elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang")
