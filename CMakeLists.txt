@@ -56,6 +56,14 @@ add_project_compile_flags(${PROJECT_NAME})
 link_project_dependencies(${PROJECT_NAME})
 
 add_clang_tidy(${PROJECT_NAME} ${CMAKE_CURRENT_BINARY_DIR})
+add_custom_target(
+    run
+    COMMAND
+	${CMAKE_COMMAND} -E env "$<TARGET_FILE:${PROJECT_NAME}>"
+    USES_TERMINAL
+    DEPENDS
+	${PROJECT_NAME}
+)
 
 if(NINJA_MULTICONFIG)
     foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -72,15 +80,6 @@ if(NINJA_MULTICONFIG)
         )
     endforeach()
 endif()
-add_custom_target(
-    run
-    COMMAND
-        ${CMAKE_COMMAND} -E env "$<TARGET_FILE:${PROJECT_NAME}>"
-    USES_TERMINAL
-    VERBATIM
-    DEPENDS
-        ${PROJECT_NAME}:$<CONFIG>
-)
 
 if(NINJA_MULTICONFIG)
     foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
