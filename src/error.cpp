@@ -1,7 +1,8 @@
 #include "error.h"
 
-constexpr const static char** init_type_as_string(auto max_value) {
-  const char** array = new const char*[max_value];
+template<haru::Error::TypeAsInt MAX_VALUE>
+constexpr static const char** init_type_as_string() {
+  static const char* array[MAX_VALUE];
   using IntType = haru::Error::TypeAsInt;
 
 #define ERR_STR(VARIANT) array[static_cast<IntType>(haru::Error::VARIANT)] = #VARIANT
@@ -14,13 +15,13 @@ constexpr const static char** init_type_as_string(auto max_value) {
   ERR_STR(NOT_FOUND);
   ERR_STR(NO_INPUT);
   ERR_STR(WRITE_ERROR);
-  array[max_value - 1] = "Unknown";
+  array[MAX_VALUE - 1] = "Unknown";
 
   return array;
 }
 
 namespace haru {
-const char** Error::s_type_as_string = init_type_as_string(TYPE_MAX_VALUE);
+const char** Error::s_type_as_string = init_type_as_string<TYPE_MAX_VALUE>();
 
 const char* Error::type_as_string(Type type) {
   const auto* const S_TYPE_STRING = s_type_as_string[static_cast<TypeAsInt>(type)];
