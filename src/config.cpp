@@ -57,7 +57,8 @@ std::optional<const std::filesystem::path> Config::get_local_config_path() {
         if (std::filesystem::exists(possible_config))
             return possible_config;
 
-        if (!current_path.has_parent_path())
+        if (!current_path.has_parent_path() ||
+            (current_path == current_path.parent_path()))
             return std::nullopt;
         current_path = current_path.parent_path();
     }
