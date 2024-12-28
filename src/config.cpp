@@ -275,17 +275,18 @@ Config::handle_config_command(const std::vector<std::string>& args,
     return {};
 }
 
+static bool config_cache_initialised = false;
+
 std::expected<std::string, Error> Config::get_value(const std::string_view key,
                                                     bool override_local) {
     static Config_t local_config;
     static Config_t global_config;
     static Config_t default_config;
-    bool initialised = false;
-    if (!initialised) {
+    if (!config_cache_initialised) {
         local_config = TRY(get_local_config());
         global_config = TRY(get_global_config());
         default_config = Config::default_config();
-        initialised = true;
+        config_cache_initialised = true;
     }
 
     std::string k(key);
